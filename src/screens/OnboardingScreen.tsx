@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import {
-  ScrollView,
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import turkiyeIlleri from '../data/cities';
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -17,29 +11,20 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [fullName, setFullName] = useState('');
   const [age, setAge] = useState('');
   const [city, setCity] = useState('');
-  const [job, setJob] = useState('');
-  const [gender, setGender] = useState('');
-  const [schoolLevel, setSchoolLevel] = useState('');
 
   const handleSubmit = () => {
     const userData = {
       fullName,
       age,
       city,
-      job,
-      gender,
-      schoolLevel,
     };
     console.log('Kullanıcı Bilgileri:', userData);
-
-    onComplete();
+    onComplete();  // Onboarding tamamlandı bildir
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>
-        Hoş geldiniz! Lütfen bilgilerinizi girin.
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Hoş geldiniz! Lütfen bilgilerinizi girin.</Text>
 
       <Text>Ad Soyad</Text>
       <TextInput
@@ -59,69 +44,33 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
       />
 
       <Text>Şehir</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Yaşadığınız şehir"
-        value={city}
-        onChangeText={setCity}
-      />
-
-      <Text>Meslek</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Mesleğiniz"
-        value={job}
-        onChangeText={setJob}
-      />
-
-      <Text>Cinsiyet</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Cinsiyetiniz"
-        value={gender}
-        onChangeText={setGender}
-      />
-
-      <Text>Okul Derecesi</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={schoolLevel}
-          onValueChange={(itemValue) => setSchoolLevel(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Seçiniz" value="" />
-          <Picker.Item label="İlkokul" value="ilkokul" />
-          <Picker.Item label="Ortaokul" value="ortaokul" />
-          <Picker.Item label="Lise" value="lise" />
-          <Picker.Item label="Üniversite" value="universite" />
-        </Picker>
-      </View>
+      <Picker
+        selectedValue={city}
+        onValueChange={(itemValue) => setCity(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Şehir seçiniz" value="" />
+        {turkiyeIlleri.map((il) => (
+          <Picker.Item key={il} label={il} value={il} />
+        ))}
+      </Picker>
 
       <Button title="Kaydet ve Devam Et" onPress={handleSubmit} />
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+  container: { padding: 20, flex: 1, backgroundColor: '#fff' },
+  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 15 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
+    padding: 8,
+    marginVertical: 8,
     borderRadius: 6,
-    padding: 10,
-    marginBottom: 15,
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    marginBottom: 15,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
+  picker: { marginVertical: 8 },
 });
 
 export default OnboardingScreen;

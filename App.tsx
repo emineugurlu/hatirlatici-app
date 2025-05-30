@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -17,17 +17,16 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
-  // Onboarding tamamlandı mı kontrolü
   const [isOnboarded, setIsOnboarded] = useState(false);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator
+        initialRouteName={isOnboarded ? "ReminderSelection" : "Onboarding"}
+        screenOptions={{ headerShown: false }}
+      >
         {!isOnboarded ? (
-          <Stack.Screen
-            name="Onboarding"
-            options={{ headerShown: false }}
-          >
+          <Stack.Screen name="Onboarding">
             {(props) => <OnboardingScreen {...props} onComplete={() => setIsOnboarded(true)} />}
           </Stack.Screen>
         ) : (
@@ -35,7 +34,7 @@ const App: React.FC = () => {
             <Stack.Screen
               name="ReminderSelection"
               component={ReminderSelectionScreen}
-              options={{ title: 'Hatırlatıcı Seçimi' }}
+              options={{ headerShown: true, title: 'Hatırlatıcı Seçimi' }}
             />
             {/* Diğer ekranlar */}
           </>
