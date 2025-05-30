@@ -1,29 +1,54 @@
+// src/screens/ReminderSelectionScreen.tsx
+
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../App';
 
-const ReminderSelectionScreen = ({ navigation }: any) => {
-  const handleSelection = (type: string) => {
-    console.log(`${type} seçildi`);
-    // navigation.navigate('WaterReminder') gibi yönlendirme ekleyeceğiz
+// Navigatör tipini tanımlıyoruz:
+type ReminderSelectionNavProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'ReminderSelection'
+>;
+
+const ReminderSelectionScreen: React.FC = () => {
+  const navigation = useNavigation<ReminderSelectionNavProp>();
+
+  const handleSelection = (screen: keyof RootStackParamList) => {
+    console.log(`${screen} seçildi`);
+    navigation.navigate(screen);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bugün neyi hatırlamak istersiniz?</Text>
-      
-      <TouchableOpacity style={styles.button} onPress={() => handleSelection('Su')}>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => handleSelection('WaterReminder')}
+      >
         <Text style={styles.buttonText}>💧 Su İçmeyi</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => handleSelection('Yemek')}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => handleSelection('MealReminder')}
+      >
         <Text style={styles.buttonText}>🍽️ Yemek Yemeyi</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => handleSelection('Toplantı')}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => handleSelection('MeetingReminder')}
+      >
         <Text style={styles.buttonText}>📅 Toplantıyı</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => handleSelection('Diğer')}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => handleSelection('OtherReminder')}
+      >
         <Text style={styles.buttonText}>📌 Diğer</Text>
       </TouchableOpacity>
     </View>
