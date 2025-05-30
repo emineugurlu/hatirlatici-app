@@ -1,5 +1,16 @@
+// src/screens/OnboardingScreen.tsx
+
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Button, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Button,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
@@ -36,9 +47,13 @@ const OnboardingScreen = ({ navigation }: any) => {
     try {
       await AsyncStorage.setItem('userData', JSON.stringify(userData));
       Alert.alert('Bilgiler kaydedildi!');
-      navigation.navigate('ReminderSelection'); // veya başka bir ana sayfa ekranı
+      navigation.navigate('ReminderSelection');
     } catch (e) {
-      Alert.alert('Kaydetme hatası', e.message);
+      if (e instanceof Error) {
+        Alert.alert('Kaydetme hatası', e.message);
+      } else {
+        Alert.alert('Kaydetme hatası', 'Bilinmeyen hata oluştu');
+      }
     }
   };
 
@@ -47,16 +62,37 @@ const OnboardingScreen = ({ navigation }: any) => {
       <Text style={styles.title}>Hoşgeldiniz! Lütfen bilgilerinizi girin.</Text>
 
       <Text>Yaşınız:</Text>
-      <TextInput style={styles.input} keyboardType="numeric" value={age} onChangeText={setAge} />
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        value={age}
+        onChangeText={setAge}
+        placeholder="Örn: 25"
+      />
 
       <Text>Cinsiyetiniz:</Text>
-      <TextInput style={styles.input} value={gender} onChangeText={setGender} placeholder="Erkek/Kadın" />
+      <TextInput
+        style={styles.input}
+        value={gender}
+        onChangeText={setGender}
+        placeholder="Erkek/Kadın"
+      />
 
       <Text>Mesleğiniz:</Text>
-      <TextInput style={styles.input} value={job} onChangeText={setJob} />
+      <TextInput
+        style={styles.input}
+        value={job}
+        onChangeText={setJob}
+        placeholder="Örn: Öğrenci"
+      />
 
       <Text>Yaşadığınız şehir:</Text>
-      <TextInput style={styles.input} value={city} onChangeText={setCity} />
+      <TextInput
+        style={styles.input}
+        value={city}
+        onChangeText={setCity}
+        placeholder="Örn: İstanbul"
+      />
 
       <Text>İzin Günleri (tatil günleri):</Text>
       <View style={styles.offDaysContainer}>
@@ -66,7 +102,9 @@ const OnboardingScreen = ({ navigation }: any) => {
             style={[styles.dayButton, offDays.includes(day) && styles.dayButtonSelected]}
             onPress={() => toggleOffDay(day)}
           >
-            <Text style={offDays.includes(day) ? styles.dayTextSelected : styles.dayText}>{day}</Text>
+            <Text style={offDays.includes(day) ? styles.dayTextSelected : styles.dayText}>
+              {day}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
