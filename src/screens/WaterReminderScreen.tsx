@@ -1,91 +1,61 @@
-// src/screens/WaterReminderScreen.tsx
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// 追加:
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+const WaterReminderScreen = () => {
+  const [glassCount, setGlassCount] = useState('');
+  const [displayCount, setDisplayCount] = useState(0);
 
-const STORAGE_KEY = 'waterGlasses';
-
-const WaterReminderScreen: React.FC = () => {
-  const [input, setInput] = useState<string>('');
-  const [glasses, setGlasses] = useState<number>(0);
-
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then(value => {
-      if (value) setGlasses(Number(value));
-    });
-  }, []);
-
-  const handleSave = async () => {
-    const num = parseInt(input, 10);
-    if (isNaN(num) || num < 0) return;
-    setGlasses(num);
-    await AsyncStorage.setItem(STORAGE_KEY, num.toString());
+  const handleSave = () => {
+    const count = parseInt(glassCount, 10);
+    if (!isNaN(count)) {
+      setDisplayCount(count);
+    } else {
+      setDisplayCount(0);
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Gün içinde kaç bardak su içtiniz?</Text>
-
+    <View style={styles.container}>
+      <Text>Gün içinde kaç bardak su içtiniz?</Text>
       <TextInput
         style={styles.input}
-        keyboardType="number-pad"
-        placeholder="Örn: 8"
-        value={input}
-        onChangeText={setInput}
+        keyboardType="numeric"
+        value={glassCount}
+        onChangeText={setGlassCount}
+        placeholder="0"
       />
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
+        <Text style={styles.buttonText}>KAYDET</Text>
+      </TouchableOpacity>
 
-      <Button title="Kaydet" onPress={handleSave} />
-
-      {/* İkonları buraya ekliyoruz */}
-      <View style={styles.iconsContainer}>
-        {Array.from({ length: glasses }).map((_, i) => (
-          <MaterialCommunityIcons
-            key={i}
-            name="glass-water"
-            size={32}
-            color="#4A90E2"
-            style={styles.icon}
-          />
+      <View style={styles.iconContainer}>
+        {Array.from({ length: displayCount }).map((_, i) => (
+          <Text key={i} style={styles.icon}>🥤</Text>
         ))}
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
-export default WaterReminderScreen;
-
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 20,
-    justifyContent: 'flex-start',
-    backgroundColor: '#fff',
+    flex: 1, padding: 20, backgroundColor: '#fff'
   },
-  title: { fontSize: 18, marginBottom: 12 },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-    marginBottom: 20,
+    borderWidth: 1, borderColor: '#ccc', padding: 10, marginVertical: 10, borderRadius: 5
   },
-  iconsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 30,
+  button: {
+    backgroundColor: '#4A90E2', padding: 15, borderRadius: 10, alignItems: 'center'
+  },
+  buttonText: {
+    color: 'white', fontWeight: 'bold'
+  },
+  iconContainer: {
+    flexDirection: 'row', marginTop: 20, flexWrap: 'wrap'
   },
   icon: {
-    margin: 6,
-  },
+    fontSize: 30, marginRight: 10
+  }
 });
+
+export default WaterReminderScreen;
