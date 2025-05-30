@@ -10,6 +10,8 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// 追加:
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const STORAGE_KEY = 'waterGlasses';
 
@@ -17,7 +19,6 @@ const WaterReminderScreen: React.FC = () => {
   const [input, setInput] = useState<string>('');
   const [glasses, setGlasses] = useState<number>(0);
 
-  // Uygulama açıldığında önce kaydedilmiş değeri oku
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then(value => {
       if (value) setGlasses(Number(value));
@@ -45,11 +46,16 @@ const WaterReminderScreen: React.FC = () => {
 
       <Button title="Kaydet" onPress={handleSave} />
 
+      {/* İkonları buraya ekliyoruz */}
       <View style={styles.iconsContainer}>
         {Array.from({ length: glasses }).map((_, i) => (
-          <Text key={i} style={styles.icon}>
-            💧
-          </Text>
+          <MaterialCommunityIcons
+            key={i}
+            name="glass-water"
+            size={32}
+            color="#4A90E2"
+            style={styles.icon}
+          />
         ))}
       </View>
     </ScrollView>
@@ -65,10 +71,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 18,
-    marginBottom: 12,
-  },
+  title: { fontSize: 18, marginBottom: 12 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -83,8 +86,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   icon: {
-    fontSize: 32,
     margin: 6,
   },
 });
- 
