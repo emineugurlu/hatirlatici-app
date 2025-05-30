@@ -1,18 +1,12 @@
-import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import {
-  createNativeStackNavigator,
-  NativeStackScreenProps
-} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import OnboardingScreen from './src/screens/OnboardingScreen';
 import ReminderSelectionScreen from './src/screens/ReminderSelectionScreen';
-import WaterReminderScreen from './src/screens/WaterReminderScreen';
-import MealReminderScreen from './src/screens/MealReminderScreen';
-import MeetingReminderScreen from './src/screens/MeetingReminderScreen';
-import OtherReminderScreen from './src/screens/OtherReminderScreen';
 
 export type RootStackParamList = {
+  Onboarding: undefined;
   ReminderSelection: undefined;
   WaterReminder: undefined;
   MealReminder: undefined;
@@ -23,34 +17,29 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
+  // Onboarding tamamlandı mı kontrolü
+  const [isOnboarded, setIsOnboarded] = useState(false);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="ReminderSelection">
-        <Stack.Screen
-          name="ReminderSelection"
-          component={ReminderSelectionScreen}
-          options={{ title: 'Hatırlatıcı Seçimi' }}
-        />
-        <Stack.Screen
-          name="WaterReminder"
-          component={WaterReminderScreen}
-          options={{ title: 'Su Hatırlatıcı' }}
-        />
-        <Stack.Screen
-          name="MealReminder"
-          component={MealReminderScreen}
-          options={{ title: 'Yemek Hatırlatıcı' }}
-        />
-        <Stack.Screen
-          name="MeetingReminder"
-          component={MeetingReminderScreen}
-          options={{ title: 'Toplantı Hatırlatıcı' }}
-        />
-        <Stack.Screen
-          name="OtherReminder"
-          component={OtherReminderScreen}
-          options={{ title: 'Diğer Hatırlatıcı' }}
-        />
+      <Stack.Navigator>
+        {!isOnboarded ? (
+          <Stack.Screen
+            name="Onboarding"
+            options={{ headerShown: false }}
+          >
+            {(props) => <OnboardingScreen {...props} onComplete={() => setIsOnboarded(true)} />}
+          </Stack.Screen>
+        ) : (
+          <>
+            <Stack.Screen
+              name="ReminderSelection"
+              component={ReminderSelectionScreen}
+              options={{ title: 'Hatırlatıcı Seçimi' }}
+            />
+            {/* Diğer ekranlar */}
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
