@@ -14,40 +14,18 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import turkiyeIlleri from '../data/cities'; // 81 ilin dizisidir, cities.ts (ekli olacak)
+import turkiyeIlleri from '../data/cities'; // 81 ilin adı
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList, UserData } from '../../App'; // Tipleri çekiyoruz
 
-// Eğer proje dizininizde bir theme dosyanız varsa, kendi renklerinizi oradan da çekebilirsiniz.
-// Bu örnekte sabit hex renkler kullandım:
-const colors = {
-  primary: '#E91E63',       // Pembe (ikon, dropdown oku, vs)
-  secondary: '#9C27B0',     // Mor (gradient’in diğer rengi)
-  background: '#FFFFFF',    // Beyaz (genel arkaplan)
-  formBackground: '#FFF8E1',// Krem (form kartı arkaplanı)
-  border: '#DDDDDD',        // Açık gri (çerçeve çizgisi)
-  textPrimary: '#333333',   // Koyu metin rengi
-  textSecondary: '#888888', // Yer tutucu metin rengi
-  accent: '#8BC34A',        // Kaydet butonu rengi (yeşil ton)
+type OnboardingProps = NativeStackScreenProps<RootStackParamList, 'Onboarding'> & {
+  onComplete: (data: UserData) => void;
 };
 
-const spacing = {
-  small: 12,
-  medium: 16,
-};
-
-const fontSizes = {
-  title: 24,
-  subtitle: 16,
-  regular: 14,
-};
-
-interface OnboardingScreenProps {
-  onComplete: () => void;
-}
-
-const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
+const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [fullName, setFullName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
@@ -55,12 +33,13 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [city, setCity] = useState('');
 
   const handleSubmit = () => {
+    // Boşluk kontrolü
     if (!fullName.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen Ad Soyad kısmını doldurun.');
       return;
     }
-    if (!age.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen Yaş kısmını doldurun.');
+    if (!age.trim() || isNaN(Number(age))) {
+      Alert.alert('Geçersiz Bilgi', 'Lütfen geçerli bir yaş girin.');
       return;
     }
     if (!gender.trim()) {
@@ -75,16 +54,23 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
       Alert.alert('Eksik Bilgi', 'Lütfen Şehir seçin.');
       return;
     }
-    onComplete();
+
+    // onComplete ile UserData’yı yukarıya (App.tsx) gönderiyoruz
+    const data: UserData = {
+      fullName: fullName.trim(),
+      age: Number(age),
+      gender: gender as 'Erkek' | 'Kadın' | 'Diğer',
+      job: job.trim(),
+      city: city,
+    };
+    onComplete(data);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* -------------------- */}
-      {/* 1) Üstte Gradient Header */}
-      {/* -------------------- */}
+      {/* Gradient Header */}
       <LinearGradient
-        colors={[colors.primary, colors.secondary]}
+        colors={['#E91E63', '#9C27B0']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.headerGradient}
@@ -105,9 +91,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
         </Animatable.Text>
       </LinearGradient>
 
-      {/* ------------------- */}
-      {/* 2) Form Alanları */}
-      {/* ------------------- */}
+      {/* Form Alanları */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.select({ ios: 'padding', android: undefined })}
@@ -121,48 +105,48 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
             duration={800}
             style={styles.formContainer}
           >
-            {/* --- Ad Soyad (TextInput) --- */}
+            {/* Ad Soyad */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="account"
                 size={20}
-                color={colors.primary}
+                color="#E91E63"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.inputField}
                 placeholder="Ad Soyad"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#888888"
                 value={fullName}
                 onChangeText={setFullName}
                 autoCapitalize="words"
               />
             </View>
 
-            {/* --- Yaş (TextInput) --- */}
+            {/* Yaş */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="calendar"
                 size={20}
-                color={colors.primary}
+                color="#E91E63"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.inputField}
                 placeholder="Yaş"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#888888"
                 value={age}
                 onChangeText={setAge}
                 keyboardType="numeric"
               />
             </View>
 
-            {/* --- Cinsiyet (Picker) --- */}
+            {/* Cinsiyet */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="gender-male-female"
                 size={20}
-                color={colors.primary}
+                color="#E91E63"
                 style={styles.inputIcon}
               />
               <View style={styles.pickerWrapper}>
@@ -170,7 +154,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
                   selectedValue={gender}
                   onValueChange={(itemValue) => setGender(itemValue)}
                   style={styles.pickerField}
-                  dropdownIconColor={colors.primary}
+                  dropdownIconColor="#E91E63"
                 >
                   <Picker.Item label="Cinsiyet seçiniz" value="" />
                   <Picker.Item label="Erkek" value="Erkek" />
@@ -180,29 +164,29 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
               </View>
             </View>
 
-            {/* --- Meslek (TextInput) --- */}
+            {/* Meslek */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="briefcase"
                 size={20}
-                color={colors.primary}
+                color="#E91E63"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.inputField}
                 placeholder="Meslek"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#888888"
                 value={job}
                 onChangeText={setJob}
               />
             </View>
 
-            {/* --- Şehir (Picker) --- */}
+            {/* Şehir */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="home-city"
                 size={20}
-                color={colors.primary}
+                color="#E91E63"
                 style={styles.inputIcon}
               />
               <View style={styles.pickerWrapper}>
@@ -210,7 +194,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
                   selectedValue={city}
                   onValueChange={(itemValue) => setCity(itemValue)}
                   style={styles.pickerField}
-                  dropdownIconColor={colors.primary}
+                  dropdownIconColor="#E91E63"
                 >
                   <Picker.Item label="Şehir seçiniz" value="" />
                   {turkiyeIlleri.map((il) => (
@@ -222,14 +206,11 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
           </Animatable.View>
         </ScrollView>
 
-        {/* ----------------------------------- */}
-        {/* 3) Alt Kısım: “Kaydet ve Devam Et” */}
-        {/* ----------------------------------- */}
         <Animatable.View animation="fadeInUp" delay={500} style={styles.buttonContainer}>
           <Button
             title="Kaydet ve Devam Et"
             onPress={handleSubmit}
-            color={colors.accent}
+            color="#8BC34A"
           />
         </Animatable.View>
       </KeyboardAvoidingView>
@@ -239,45 +220,39 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
 
 export default OnboardingScreen;
 
+// Stil tanımları
 const styles = StyleSheet.create({
-  // 1) Genel Konteynır
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FFFFFF',
   },
-
-  // 2) Üstteki Gradient Header
   headerGradient: {
-    height: 200, // 200px yükseklik
+    height: 200,
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
   headerTitle: {
-    fontSize: fontSizes.title,
+    fontSize: 24,
     fontWeight: '700',
-    color: colors.background,
+    color: '#FFFFFF',
   },
   headerSubtitle: {
-    fontSize: fontSizes.subtitle,
+    fontSize: 16,
     fontWeight: '400',
-    color: colors.background,
+    color: '#FFFFFF',
     marginTop: 8,
   },
-
-  // 3) ScrollView içeriğini kapsayan stil
   scrollContent: {
     flexGrow: 1,
   },
-
-  // 4) Form Kartı
   formContainer: {
-    marginTop: 20,                 // Header’dan 20px aşağıda başlasın
-    backgroundColor: colors.formBackground,
-    marginHorizontal: spacing.medium,
+    marginTop: 20,
+    backgroundColor: '#FFF8E1',
+    marginHorizontal: 16,
     borderRadius: 16,
-    padding: spacing.medium,
+    padding: 16,
     // iOS gölge
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -286,18 +261,16 @@ const styles = StyleSheet.create({
     // Android elevation
     elevation: 4,
   },
-
-  // 5) Her satırın “wrapper”’ı (ikon + girdi alanı)
   inputWrapper: {
-    flexDirection: 'row',       // İkon ve girdi yanyana
-    alignItems: 'center',       // Dikeyde ortala
-    height: 50,                 // Her satır tam 50px yüksekliğinde
-    backgroundColor: colors.background,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#DDDDDD',
     borderRadius: 8,
-    paddingHorizontal: spacing.small, // Sol-sağ 12px boşluk
-    marginBottom: spacing.medium,     // Alt komşuya 16px boşluk
+    paddingHorizontal: 12,
+    marginBottom: 16,
     // iOS gölge
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -306,36 +279,26 @@ const styles = StyleSheet.create({
     // Android elevation
     elevation: 2,
   },
-
-  // 6) İkona sadece sağa boşluk veriyoruz
   inputIcon: {
-    marginRight: spacing.small, // Icon ile girdi alanı arasında 12px boşluk
+    marginRight: 12,
   },
-
-  // 7) TextInput veya Picker’ın kendisi (satırın geri kalan kısmını kaplasın)
   inputField: {
     flex: 1,
-    height: '100%',             // inputWrapper’ın 50px’lik yüksekliğini aldır
-    fontSize: fontSizes.regular,
-    color: colors.textPrimary,
+    height: '100%',
+    fontSize: 14,
+    color: '#333333',
   },
-
-  // 8) Picker’ı sarmalayan özel bir View (içindeki Picker’ı dikeyde eksiksiz ortalamak için)
   pickerWrapper: {
     flex: 1,
-    justifyContent: 'center',   // Dikeyde ortala
+    justifyContent: 'center',
   },
-
-  // 9) Picker’ın kendisi: Genişlik 100%, yükseklik otomatik (sarmalayıcıdan alır)
   pickerField: {
     width: '100%',
   },
-
-  // 10) Kaydet & Devam Et butonunun konumu
   buttonContainer: {
-    padding: spacing.medium,
-    backgroundColor: colors.background,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: '#DDDDDD',
   },
 });

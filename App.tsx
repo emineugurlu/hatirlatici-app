@@ -1,42 +1,122 @@
-import React, { useState, useEffect } from 'react';
+// App.tsx
+
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+  createNativeStackNavigator,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import ReminderSelectionScreen from './src/screens/ReminderSelectionScreen';
+import WaterReminderScreen from './src/screens/WaterReminderScreen';
+import MealReminderScreen from './src/screens/MealReminderScreen';
+import MeetingReminderScreen from './src/screens/MeetingReminderScreen';
+import OtherReminderScreen from './src/screens/OtherReminderScreen';
 
+// 1) Stack parametreleri
 export type RootStackParamList = {
   Onboarding: undefined;
-  ReminderSelection: undefined;
-  WaterReminder: undefined;
-  MealReminder: undefined;
-  MeetingReminder: undefined;
-  OtherReminder: undefined;
+  ReminderSelection: { userData: UserData };
+  WaterReminder: { userData: UserData };
+  MealReminder: { userData: UserData };
+  MeetingReminder: { userData: UserData };
+  OtherReminder: { userData: UserData };
 };
+
+// 2) Kullanıcı verileri tipi
+export interface UserData {
+  fullName: string;
+  age: number;
+  gender: 'Erkek' | 'Kadın' | 'Diğer';
+  job: string;
+  city: string;
+}
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
-  const [isOnboarded, setIsOnboarded] = useState(false);
+  // “Onboarding tamamlandı mı” kontrolü
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={isOnboarded ? "ReminderSelection" : "Onboarding"}
-        screenOptions={{ headerShown: false }}
-      >
-        {!isOnboarded ? (
-          <Stack.Screen name="Onboarding">
-            {(props) => <OnboardingScreen {...props} onComplete={() => setIsOnboarded(true)} />}
+      <Stack.Navigator>
+        {/* Eğer userData yoksa (Onboarding yapılmadıysa), OnboardingScreen’i göster */}
+        {!userData ? (
+          <Stack.Screen name="Onboarding" options={{ headerShown: false }}>
+            {props => (
+              <OnboardingScreen
+                {...props}
+                onComplete={(data) => {
+                  // Onboarding tamamlandığında userData’yı kaydet
+                  setUserData(data);
+                }}
+              />
+            )}
           </Stack.Screen>
         ) : (
+          // Onboarding yapıldıysa, diğer ekranlara geç
           <>
             <Stack.Screen
               name="ReminderSelection"
-              component={ReminderSelectionScreen}
-              options={{ headerShown: true, title: 'Hatırlatıcı Seçimi' }}
-            />
-            {/* Diğer ekranlar */}
+              options={{ title: 'Hatırlatıcı Seçimi' }}
+            >
+              {props => (
+                <ReminderSelectionScreen
+                  {...props}
+                  userData={userData}
+                />
+              )}
+            </Stack.Screen>
+
+            <Stack.Screen
+              name="WaterReminder"
+              options={{ title: 'Su Hatırlatıcı' }}
+            >
+              {props => (
+                <WaterReminderScreen
+                  {...props}
+                  userData={userData}
+                />
+              )}
+            </Stack.Screen>
+
+            <Stack.Screen
+              name="MealReminder"
+              options={{ title: 'Yemek Hatırlatıcı' }}
+            >
+              {props => (
+                <MealReminderScreen
+                  {...props}
+                  userData={userData}
+                />
+              )}
+            </Stack.Screen>
+
+            <Stack.Screen
+              name="MeetingReminder"
+              options={{ title: 'Toplantı Hatırlatıcı' }}
+            >
+              {props => (
+                <MeetingReminderScreen
+                  {...props}
+                  userData={userData}
+                />
+              )}
+            </Stack.Screen>
+
+            <Stack.Screen
+              name="OtherReminder"
+              options={{ title: 'Diğer Hatırlatıcı' }}
+            >
+              {props => (
+                <OtherReminderScreen
+                  {...props}
+                  userData={userData}
+                />
+              )}
+            </Stack.Screen>
           </>
         )}
       </Stack.Navigator>

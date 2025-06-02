@@ -1,61 +1,165 @@
+// src/screens/WaterReminderScreen.tsx
+
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList, UserData } from '../../App';
 
-const WaterReminderScreen = () => {
+// Örnek detoks tarifleri: 
+// Her bir tarif, mesleğe ve yaş aralığına göre öneri verebilsin diye bir obje
+interface DetoxRecipe {
+  title: string;
+  description: string;
+  minAge: number;
+  maxAge: number;
+  professions: string[]; // Bu mesleklere uygun
+}
+
+// Bu diziyi dilediğiniz kadar örnek tarifle genişletebilirsiniz
+const detoxRecipes: DetoxRecipe[] = [
+  {
+    title: 'Yeşil Çay + Limonlu Su',
+    description:
+      'Günde 2 fincan yeşil çay ve limonlu su metabolizmayı hızlandırır. Bilgisayar başında uzun oturanlar için hafif bir enerji kaynağıdır.',
+    minAge: 18,
+    maxAge: 35,
+    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Öğrenci'],
+  },
+  {
+    title: 'Salatalık ve Nane Kürü',
+    description:
+      '1 dilim salatalık + birkaç yaprak taze nane + 1 litre su. Özellikle uzun süre oturarak çalışanlara rahatlık verir.',
+    minAge: 25,
+    maxAge: 50,
+    professions: ['Bilgisayar Mühendisi', 'Tasarımcı', 'Ofis Çalışanı'],
+  },
+  {
+    title: 'Elmalı Tarçınlı Detoks',
+    description:
+      '1 adet elma dilimlenip üzerine tarçın serpilip ılık suyla karıştırılır. 30 yaş ve üzeri ofis çalışanları için ideal.',
+    minAge: 30,
+    maxAge: 60,
+    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Proje Yöneticisi'],
+  },
+];
+
+type WaterProps = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
+
+const WaterReminderScreen: React.FC<WaterProps & { userData: UserData }> = ({
+  userData,
+}) => {
   const [glassCount, setGlassCount] = useState('');
-  const [displayCount, setDisplayCount] = useState(0);
 
-  const handleSave = () => {
-    const count = parseInt(glassCount, 10);
-    if (!isNaN(count)) {
-      setDisplayCount(count);
-    } else {
-      setDisplayCount(0);
-    }
+  // Kullanıcının yaş ve mesleğine uygun detoks tariflerini döndüren fonksiyon
+  const getDetoxForUser = (
+    recipes: DetoxRecipe[],
+    user: UserData
+  ): DetoxRecipe[] => {
+    return recipes.filter((r) => {
+      return (
+        user.age >= r.minAge &&
+        user.age <= r.maxAge &&
+        r.professions.includes(user.job)
+      );
+    });
   };
 
+  const handleSave = () => {
+    // Burada glassCount’u kaydedebilir veya lokal state’te tutabilirsiniz.
+    // Ardından ekranda öneri olarak detoks tariflerini gösterelim.
+    // (Burada kaydetme işlemi basitçe console.log)
+    console.log('Su Maski: ', glassCount);
+  };
+
+  // Kullanıcının uygun tariflerini hesapla
+  const userDetox = getDetoxForUser(detoxRecipes, userData);
+
   return (
-    <View style={styles.container}>
-      <Text>Gün içinde kaç bardak su içtiniz?</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.questionText}>Gün içinde kaç bardak su içtiniz?</Text>
       <TextInput
         style={styles.input}
+        placeholder="Ör. 6"
+        placeholderTextColor="#888"
         keyboardType="numeric"
         value={glassCount}
         onChangeText={setGlassCount}
-        placeholder="0"
       />
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>KAYDET</Text>
-      </TouchableOpacity>
+      <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
 
-      <View style={styles.iconContainer}>
-        {Array.from({ length: displayCount }).map((_, i) => (
-          <Text key={i} style={styles.icon}>🥤</Text>
-        ))}
-      </View>
-    </View>
+      {/* Eğer harvest verisi kaydedildiyse veya gösterilecekse: */}
+      {userDetox.length > 0 ? (
+        <View style={styles.suggestionContainer}>
+          <Text style={styles.suggestionTitle}>Detoks Önerileri:</Text>
+          {userDetox.map((item, idx) => (
+            <View key={idx} style={styles.recipeCard}>
+              <Text style={styles.recipeTitle}>{item.title}</Text>
+              <Text style={styles.recipeDesc}>{item.description}</Text>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <View style={styles.suggestionContainer}>
+          <Text style={styles.suggestionTitle}>
+            Sizin için özel detoks tarifi bulunamadı.
+          </Text>
+        </View>
+      )}
+    </ScrollView>
   );
 };
 
+export default WaterReminderScreen;
+
+// Stil dosyası
 const styles = StyleSheet.create({
   container: {
-    flex: 1, padding: 20, backgroundColor: '#fff'
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  questionText: {
+    fontSize: 18,
+    marginBottom: 12,
   },
   input: {
-    borderWidth: 1, borderColor: '#ccc', padding: 10, marginVertical: 10, borderRadius: 5
+    borderWidth: 1,
+    borderColor: '#DDDDDD',
+    borderRadius: 8,
+    height: 50,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    fontSize: 16,
   },
-  button: {
-    backgroundColor: '#4A90E2', padding: 15, borderRadius: 10, alignItems: 'center'
+  suggestionContainer: {
+    marginTop: 20,
   },
-  buttonText: {
-    color: 'white', fontWeight: 'bold'
+  suggestionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 12,
+    color: '#E91E63',
   },
-  iconContainer: {
-    flexDirection: 'row', marginTop: 20, flexWrap: 'wrap'
+  recipeCard: {
+    backgroundColor: '#FFF3E0',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
   },
-  icon: {
-    fontSize: 30, marginRight: 10
-  }
+  recipeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: '#333333',
+  },
+  recipeDesc: {
+    fontSize: 14,
+    color: '#555555',
+  },
 });
-
-export default WaterReminderScreen;
