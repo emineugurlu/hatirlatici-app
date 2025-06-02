@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-  ScrollView,
   View,
   Text,
   TextInput,
@@ -10,10 +9,16 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import turkiyeIlleri from '../data/cities';
+import { colors, spacing, fontSizes } from '../theme';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as Animatable from 'react-native-animatable';
+import LinearGradient from 'react-native-linear-gradient';
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -27,7 +32,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [city, setCity] = useState('');
 
   const handleSubmit = () => {
-    // Boşluk veya tamamen boş girilmiş alanları kontrol et
     if (!fullName.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen Ad Soyad kısmını doldurun.');
       return;
@@ -48,99 +52,132 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
       Alert.alert('Eksik Bilgi', 'Lütfen Şehir seçin.');
       return;
     }
-
-    // Eğer buraya geldiysek, tüm alanlar dolu
-    const userData = {
-      fullName: fullName.trim(),
-      age: age.trim(),
-      gender,
-      job: job.trim(),
-      city,
-    };
-    console.log('Kullanıcı Bilgileri:', userData);
-
-    // Onboarding tamamlandı bilgisi
     onComplete();
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.select({ ios: 'padding', android: undefined })}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.formContainer}>
-          <Text style={styles.title}>Hoş geldiniz! Lütfen bilgilerinizi girin.</Text>
+    <SafeAreaView style={styles.container}>
+      {/* 1) Gradient Header */}
+      <LinearGradient
+        colors={[colors.primary, colors.secondary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <Animatable.Text
+          animation="fadeInDown"
+          duration={800}
+          style={styles.headerTitle}
+        >
+          Hoş Geldiniz!
+        </Animatable.Text>
+        <Animatable.Text
+          animation="fadeInUp"
+          duration={1000}
+          style={styles.headerSubtitle}
+        >
+          Bilgilerinizi Paylaşın
+        </Animatable.Text>
+      </LinearGradient>
 
-          {/* Ad Soyad */}
-          <Text style={styles.label}>Ad Soyad</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ad Soyad"
-            value={fullName}
-            onChangeText={setFullName}
-            autoCapitalize="words"
+      {/* 2) Form Alanları */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.select({ ios: 'padding', android: undefined })}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Animatable.View animation="slideInUp" duration={800} style={styles.formContainer}>
+            {/* Ad Soyad */}
+            <View style={styles.inputGroup}>
+              <Icon name="account" size={20} color={colors.primary} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Ad Soyad"
+                placeholderTextColor={colors.textSecondary}
+                value={fullName}
+                onChangeText={setFullName}
+                autoCapitalize="words"
+              />
+            </View>
+
+            {/* Yaş */}
+            <View style={styles.inputGroup}>
+              <Icon name="calendar" size={20} color={colors.primary} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Yaş"
+                placeholderTextColor={colors.textSecondary}
+                value={age}
+                onChangeText={setAge}
+                keyboardType="numeric"
+              />
+            </View>
+
+            {/* Cinsiyet */}
+            <View style={styles.pickerLabelContainer}>
+              <Icon name="gender-male-female" size={20} color={colors.primary} style={styles.inputIcon} />
+              <Text style={styles.label}>Cinsiyet</Text>
+            </View>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={gender}
+                onValueChange={(itemValue) => setGender(itemValue)}
+                style={styles.picker}
+                dropdownIconColor={colors.primary}
+              >
+                <Picker.Item label="Cinsiyet seçiniz" value="" />
+                <Picker.Item label="Erkek" value="Erkek" />
+                <Picker.Item label="Kadın" value="Kadın" />
+                <Picker.Item label="Diğer" value="Diğer" />
+              </Picker>
+            </View>
+
+            {/* Meslek */}
+            <View style={styles.inputGroup}>
+              <Icon name="briefcase" size={20} color={colors.primary} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Meslek"
+                placeholderTextColor={colors.textSecondary}
+                value={job}
+                onChangeText={setJob}
+              />
+            </View>
+
+            {/* Şehir */}
+            <View style={styles.pickerLabelContainer}>
+              <Icon name="home-city" size={20} color={colors.primary} style={styles.inputIcon} />
+              <Text style={styles.label}>Şehir</Text>
+            </View>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={city}
+                onValueChange={(itemValue) => setCity(itemValue)}
+                style={styles.picker}
+                dropdownIconColor={colors.primary}
+              >
+                <Picker.Item label="Şehir seçiniz" value="" />
+                {turkiyeIlleri.map((il) => (
+                  <Picker.Item key={il} label={il} value={il} />
+                ))}
+              </Picker>
+            </View>
+          </Animatable.View>
+        </ScrollView>
+
+        {/* 3) Buton */}
+        <Animatable.View animation="fadeInUp" delay={500} style={styles.buttonContainer}>
+          <Button
+            title="Kaydet ve Devam Et"
+            onPress={handleSubmit}
+            color={colors.accent}
           />
-
-          {/* Yaş */}
-          <Text style={styles.label}>Yaş</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Yaş"
-            value={age}
-            onChangeText={setAge}
-            keyboardType="numeric"
-          />
-
-          {/* Cinsiyet */}
-          <Text style={styles.label}>Cinsiyet</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={gender}
-              onValueChange={(itemValue) => setGender(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Cinsiyet seçiniz" value="" />
-              <Picker.Item label="Erkek" value="Erkek" />
-              <Picker.Item label="Kadın" value="Kadın" />
-              <Picker.Item label="Diğer" value="Diğer" />
-            </Picker>
-          </View>
-
-          {/* Meslek */}
-          <Text style={styles.label}>Meslek</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Mesleğinizi yazın"
-            value={job}
-            onChangeText={setJob}
-          />
-
-          {/* Şehir */}
-          <Text style={styles.label}>Şehir</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={city}
-              onValueChange={(itemValue) => setCity(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Şehir seçiniz" value="" />
-              {turkiyeIlleri.map((il) => (
-                <Picker.Item key={il} label={il} value={il} />
-              ))}
-            </Picker>
-          </View>
-        </View>
-      </ScrollView>
-
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Kaydet ve Devam Et"
-          onPress={handleSubmit}
-          color="#4A90E2"
-        />
-      </View>
-    </KeyboardAvoidingView>
+        </Animatable.View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -149,49 +186,95 @@ export default OnboardingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
+  },
+  headerGradient: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  headerTitle: {
+    fontSize: fontSizes.title,
+    fontWeight: '700',
+    color: colors.background,
+  },
+  headerSubtitle: {
+    fontSize: fontSizes.subtitle,
+    fontWeight: '400',
+    color: colors.background,
+    marginTop: 8,
   },
   scrollContent: {
     flexGrow: 1,
   },
   formContainer: {
-    padding: 20,
-    paddingBottom: 0,
+    marginTop: -50,
+    backgroundColor: colors.formBackground,
+    marginHorizontal: spacing.medium,
+    borderRadius: 16,
+    padding: spacing.medium,
+    // Gölge (iOS)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // Elevation (Android)
+    elevation: 4,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
+  inputGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.medium,
   },
-  label: {
-    marginTop: 12,
-    marginBottom: 4,
-    fontSize: 16,
-    fontWeight: '500',
+  inputIcon: {
+    marginRight: spacing.small,
   },
   input: {
+    flex: 1,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontSize: 16,
-    marginBottom: 12,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: fontSizes.regular,
+    color: colors.textPrimary,
   },
-  pickerContainer: {
+  pickerLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.small,
+    marginBottom: spacing.xsmall,
+  },
+  label: {
+    fontSize: fontSizes.label,
+    color: colors.textSecondary,
+    marginLeft: spacing.small,
+  },
+  pickerWrapper: {
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    marginBottom: 12,
+    borderColor: colors.border,
+    borderRadius: 8,
+    marginBottom: spacing.medium,
+    // Gölge
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   picker: {
     height: 50,
     width: '100%',
+    color: colors.textPrimary,
   },
   buttonContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    justifyContent: 'flex-end',
+    padding: spacing.medium,
+    backgroundColor: colors.background,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
 });
