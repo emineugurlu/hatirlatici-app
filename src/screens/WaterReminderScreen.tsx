@@ -47,14 +47,13 @@ const detoxRecipes: DetoxRecipe[] = [
   },
 ];
 
-type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'> & {
-  userData: UserData;
-};
+type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
 
-const WaterReminderScreen: React.FC<Props> = ({ userData }) => {
+const WaterReminderScreen: React.FC<Props> = ({ route }) => {
+  const userData: UserData = route.params.userData; // Kesin var
   const [glassCount, setGlassCount] = useState('');
 
-  // Kullanıcının yaş ve mesleğine uygun tarifleri döndüren fonksiyon
+  // Kullanıcının yaş ve mesleğine uygun tarifleri süz
   const getDetoxForUser = (
     recipes: DetoxRecipe[],
     user: UserData
@@ -69,7 +68,6 @@ const WaterReminderScreen: React.FC<Props> = ({ userData }) => {
   };
 
   const handleSave = () => {
-    // Burada glassCount’u kaydetmek isterseniz yapabilirsiniz
     console.log('Kaç bardak: ', glassCount);
   };
 
@@ -77,7 +75,9 @@ const WaterReminderScreen: React.FC<Props> = ({ userData }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.questionText}>Gün içinde kaç bardak su içtiniz?</Text>
+      <Text style={styles.questionText}>
+        Gün içinde kaç bardak su içtiniz?
+      </Text>
       <TextInput
         style={styles.input}
         placeholder="Ör. 6"

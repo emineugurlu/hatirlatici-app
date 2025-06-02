@@ -1,18 +1,37 @@
 // src/screens/ReminderSelectionScreen.tsx
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import { RootStackParamList, UserData } from '../../App';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ReminderSelection'> & {
-  userData: UserData;
-};
+// 1) Bu ekrana gelen props tipi:
+type Props = NativeStackScreenProps<RootStackParamList, 'ReminderSelection'>;
 
-const ReminderSelectionScreen: React.FC<Props> = ({ navigation, userData }) => {
-  const handleSelection = (screenName: keyof RootStackParamList) => {
-    navigation.navigate(screenName, { userData });
+// 2) Sadece “param bekleyen ekran adları”nı içeren bir tip oluşturduk.
+//    Böylece “Onboarding” burada **kullanılamayacak**, çünkü Onboarding: undefined
+type ParamScreens =
+  | 'ReminderSelection'
+  | 'WaterReminder'
+  | 'MealReminder'
+  | 'MeetingReminder'
+  | 'OtherReminder';
+
+const ReminderSelectionScreen: React.FC<Props> = ({ navigation, route }) => {
+  // 3) Kesin: route.params.userData mevcuttur.
+  const userData: UserData = route.params.userData;
+
+  // 4) Param bekleyen ekran adlarını tuşa basınca kullanıyoruz:
+  const handleSelection = (screenName: ParamScreens) => {
+    // navigation.navigate<ParamScreens> ile TS’e “param bekleyen ekranlardan birini seçeceğim”
+    navigation.navigate<ParamScreens>(screenName, { userData });
   };
 
   return (
@@ -20,7 +39,6 @@ const ReminderSelectionScreen: React.FC<Props> = ({ navigation, userData }) => {
       <Text style={styles.title}>Merhaba, {userData.fullName}!</Text>
       <Text style={styles.subtitle}>Bugün neyi hatırlatmak istersiniz?</Text>
 
-      {/* Su İçmeyi */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleSelection('WaterReminder')}
@@ -29,25 +47,32 @@ const ReminderSelectionScreen: React.FC<Props> = ({ navigation, userData }) => {
         <Text style={styles.buttonText}>Su İçmeyi</Text>
       </TouchableOpacity>
 
-      {/* Yemek Yemeyi */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleSelection('MealReminder')}
       >
-        <Icon name="food-fork-drink" size={20} color="#FFF" style={{ marginRight: 8 }} />
+        <Icon
+          name="food-fork-drink"
+          size={20}
+          color="#FFF"
+          style={{ marginRight: 8 }}
+        />
         <Text style={styles.buttonText}>Yemek Yemeyi</Text>
       </TouchableOpacity>
 
-      {/* Toplantıyı */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleSelection('MeetingReminder')}
       >
-        <Icon name="calendar-check" size={20} color="#FFF" style={{ marginRight: 8 }} />
+        <Icon
+          name="calendar-check"
+          size={20}
+          color="#FFF"
+          style={{ marginRight: 8 }}
+        />
         <Text style={styles.buttonText}>Toplantıyı</Text>
       </TouchableOpacity>
 
-      {/* Diğer */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleSelection('OtherReminder')}
@@ -63,22 +88,22 @@ export default ReminderSelectionScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
+    flex: 1, 
+    alignItems: 'center', 
     justifyContent: 'center',
-    padding: 16,
     backgroundColor: '#F5F5F5',
+    padding: 16
   },
   title: {
     fontSize: 22,
     fontWeight: '600',
     marginBottom: 8,
-    color: '#333333',
+    color: '#333333'
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 20,
-    color: '#666666',
+    color: '#666666'
   },
   button: {
     flexDirection: 'row',
@@ -89,11 +114,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     width: '100%',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '500',
-  },
+    fontWeight: '500'
+  }
 });

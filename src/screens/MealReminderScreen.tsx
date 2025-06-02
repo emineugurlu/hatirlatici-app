@@ -13,8 +13,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
 
 interface MealEntry {
-  time: string;       // Örn. '08:00'
-  description: string;// Örn. 'Yumurta, peynir, ekmek'
+  time: string;       // Örneğin '08:00'
+  description: string;// Örneğin 'Yumurta, peynir, ekmek'
 }
 
 interface MealSuggestion {
@@ -75,11 +75,10 @@ const mealSuggestions: MealSuggestion[] = [
   },
 ];
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MealReminder'> & {
-  userData: UserData;
-};
+type Props = NativeStackScreenProps<RootStackParamList, 'MealReminder'>;
 
-const MealReminderScreen: React.FC<Props> = ({ userData }) => {
+const MealReminderScreen: React.FC<Props> = ({ route }) => {
+  const userData: UserData = route.params.userData;
   const [entries, setEntries] = useState<MealEntry[]>([
     { time: '', description: '' },
   ]);

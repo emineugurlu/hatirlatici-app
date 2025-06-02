@@ -14,7 +14,9 @@ import MealReminderScreen from './src/screens/MealReminderScreen';
 import MeetingReminderScreen from './src/screens/MeetingReminderScreen';
 import OtherReminderScreen from './src/screens/OtherReminderScreen';
 
+// ------------------------------
 // 1) Kullanıcı verileri tipi
+// ------------------------------
 export interface UserData {
   fullName: string;
   age: number;
@@ -23,28 +25,35 @@ export interface UserData {
   city: string;
 }
 
-// 2) Navigation parametre listesi (hepsi undefined, çünkü ek “userData” prop’u kullanıyoruz)
+// ----------------------------------------------------------------
+// 2) Navigation parametre listesi
+//    - Onboarding: undefined (param beklemiyor)
+//    - Diğer tüm ekranlar: { userData: UserData }
+// ----------------------------------------------------------------
 export type RootStackParamList = {
   Onboarding: undefined;
-  ReminderSelection: undefined;
-  WaterReminder: undefined;
-  MealReminder: undefined;
-  MeetingReminder: undefined;
-  OtherReminder: undefined;
+  ReminderSelection: { userData: UserData };
+  WaterReminder:      { userData: UserData };
+  MealReminder:       { userData: UserData };
+  MeetingReminder:    { userData: UserData };
+  OtherReminder:      { userData: UserData };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
-  // Onboarding tamamlanana kadar null. Tamamlandığında UserData objesi.
+  // Onboarding tamamlanana kadar null. Tamamlandığında UserData objesi olacak:
   const [userData, setUserData] = useState<UserData | null>(null);
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {/* Eğer henüz onboarding yapılmadıysa */}
+        {/** Eğer henüz userData null ise (onboarding yapılmadıysa) */}
         {!userData ? (
-          <Stack.Screen name="Onboarding" options={{ headerShown: false }}>
+          <Stack.Screen
+            name="Onboarding"
+            options={{ headerShown: false }}
+          >
             {props => (
               <OnboardingScreen
                 {...props}
@@ -53,66 +62,46 @@ const App: React.FC = () => {
             )}
           </Stack.Screen>
         ) : (
-          // Onboarding tamamlandıysa diğer ekranlara geç
           <>
+            {/** Onboarding tamamlandı; artık diğer ekranlar görünsün */}
             <Stack.Screen
               name="ReminderSelection"
               options={{ title: 'Hatırlatıcı Seçimi' }}
+              initialParams={{ userData }} // Route parametresi olarak userData veriyoruz
             >
-              {props => (
-                <ReminderSelectionScreen
-                  {...props}
-                  userData={userData}
-                />
-              )}
+              {props => <ReminderSelectionScreen {...props} />}
             </Stack.Screen>
 
             <Stack.Screen
               name="WaterReminder"
               options={{ title: 'Su Hatırlatıcı' }}
+              initialParams={{ userData }}
             >
-              {props => (
-                <WaterReminderScreen
-                  {...props}
-                  userData={userData}
-                />
-              )}
+              {props => <WaterReminderScreen {...props} />}
             </Stack.Screen>
 
             <Stack.Screen
               name="MealReminder"
               options={{ title: 'Yemek Hatırlatıcı' }}
+              initialParams={{ userData }}
             >
-              {props => (
-                <MealReminderScreen
-                  {...props}
-                  userData={userData}
-                />
-              )}
+              {props => <MealReminderScreen {...props} />}
             </Stack.Screen>
 
             <Stack.Screen
               name="MeetingReminder"
               options={{ title: 'Toplantı Hatırlatıcı' }}
+              initialParams={{ userData }}
             >
-              {props => (
-                <MeetingReminderScreen
-                  {...props}
-                  userData={userData}
-                />
-              )}
+              {props => <MeetingReminderScreen {...props} />}
             </Stack.Screen>
 
             <Stack.Screen
               name="OtherReminder"
               options={{ title: 'Diğer Hatırlatıcı' }}
+              initialParams={{ userData }}
             >
-              {props => (
-                <OtherReminderScreen
-                  {...props}
-                  userData={userData}
-                />
-              )}
+              {props => <OtherReminderScreen {...props} />}
             </Stack.Screen>
           </>
         )}

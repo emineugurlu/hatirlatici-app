@@ -14,16 +14,16 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
 
 interface WeatherInfo {
-  temperature: number; // °C
-  description: string; // Güneşli, Bulutlu, vb.
+  temperature: number; 
+  description: string; 
 }
 
 const cityWeatherMap: Record<string, WeatherInfo> = {
   'İstanbul': { temperature: 22, description: 'Güneşli' },
-  'Ankara': { temperature: 18, description: 'Bulutlu' },
-  'İzmir': { temperature: 25, description: 'Güneşli' },
-  'Bingöl': { temperature: 12, description: 'Yağmurlu' },
-  // Diğer şehirleri ekleyebilirsiniz...
+  'Ankara':    { temperature: 18, description: 'Bulutlu' },
+  'İzmir':     { temperature: 25, description: 'Güneşli' },
+  'Bingöl':    { temperature: 12, description: 'Yağmurlu' },
+  // İstediğiniz kadar ekleyebilirsiniz...
 };
 
 interface ClothingSuggestion {
@@ -64,11 +64,10 @@ const clothingSuggestions: ClothingSuggestion[] = [
   },
 ];
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'> & {
-  userData: UserData;
-};
+type Props = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'>;
 
-const MeetingReminderScreen: React.FC<Props> = ({ userData }) => {
+const MeetingReminderScreen: React.FC<Props> = ({ route }) => {
+  const userData: UserData = route.params.userData;
   const [meetingDate, setMeetingDate] = useState('');
   const [meetingTopic, setMeetingTopic] = useState('');
 

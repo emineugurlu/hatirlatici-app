@@ -13,11 +13,10 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'OtherReminder'> & {
-  userData: UserData;
-};
+type Props = NativeStackScreenProps<RootStackParamList, 'OtherReminder'>;
 
-const OtherReminderScreen: React.FC<Props> = ({ userData }) => {
+const OtherReminderScreen: React.FC<Props> = ({ route }) => {
+  const userData: UserData = route.params.userData;
   const [customReminder, setCustomReminder] = useState('');
 
   // Mesleğe göre basit tavsiye metni oluştur
