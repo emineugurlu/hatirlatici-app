@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import {
+  ScrollView,
   View,
   Text,
   TextInput,
@@ -9,7 +10,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
+  Alert,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import turkiyeIlleri from '../data/cities';
@@ -26,14 +27,39 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [city, setCity] = useState('');
 
   const handleSubmit = () => {
+    // Boşluk veya tamamen boş girilmiş alanları kontrol et
+    if (!fullName.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen Ad Soyad kısmını doldurun.');
+      return;
+    }
+    if (!age.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen Yaş kısmını doldurun.');
+      return;
+    }
+    if (!gender.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen Cinsiyet seçin.');
+      return;
+    }
+    if (!job.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen Meslek kısmını doldurun.');
+      return;
+    }
+    if (!city.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen Şehir seçin.');
+      return;
+    }
+
+    // Eğer buraya geldiysek, tüm alanlar dolu
     const userData = {
-      fullName,
-      age,
+      fullName: fullName.trim(),
+      age: age.trim(),
       gender,
-      job,
+      job: job.trim(),
       city,
     };
     console.log('Kullanıcı Bilgileri:', userData);
+
+    // Onboarding tamamlandı bilgisi
     onComplete();
   };
 
@@ -46,14 +72,17 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
         <View style={styles.formContainer}>
           <Text style={styles.title}>Hoş geldiniz! Lütfen bilgilerinizi girin.</Text>
 
+          {/* Ad Soyad */}
           <Text style={styles.label}>Ad Soyad</Text>
           <TextInput
             style={styles.input}
             placeholder="Ad Soyad"
             value={fullName}
             onChangeText={setFullName}
+            autoCapitalize="words"
           />
 
+          {/* Yaş */}
           <Text style={styles.label}>Yaş</Text>
           <TextInput
             style={styles.input}
@@ -63,6 +92,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
             keyboardType="numeric"
           />
 
+          {/* Cinsiyet */}
           <Text style={styles.label}>Cinsiyet</Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -77,21 +107,16 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
             </Picker>
           </View>
 
+          {/* Meslek */}
           <Text style={styles.label}>Meslek</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={job}
-              onValueChange={(itemValue) => setJob(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Meslek seçiniz" value="" />
-              <Picker.Item label="Öğrenci" value="Öğrenci" />
-              <Picker.Item label="Çalışan" value="Çalışan" />
-              <Picker.Item label="Emekli" value="Emekli" />
-              <Picker.Item label="Diğer" value="Diğer" />
-            </Picker>
-          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Mesleğinizi yazın"
+            value={job}
+            onChangeText={setJob}
+          />
 
+          {/* Şehir */}
           <Text style={styles.label}>Şehir</Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -109,7 +134,11 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <Button title="Kaydet ve Devam Et" onPress={handleSubmit} color="#4A90E2" />
+        <Button
+          title="Kaydet ve Devam Et"
+          onPress={handleSubmit}
+          color="#4A90E2"
+        />
       </View>
     </KeyboardAvoidingView>
   );
@@ -127,7 +156,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     padding: 20,
-    paddingBottom: 0, // Buton kısmı ayrı olduğu için alt boşluk 0
+    paddingBottom: 0,
   },
   title: {
     fontSize: 22,
@@ -163,7 +192,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 20,
     paddingVertical: 12,
-    // Butonu sayfanın altına doğru itmek için:
     justifyContent: 'flex-end',
   },
 });
