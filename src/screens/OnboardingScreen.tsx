@@ -100,10 +100,10 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
                 name="account"
                 size={20}
                 color={colors.primary}
-                style={styles.inputIconAbsolute}
+                style={styles.inputIcon}
               />
               <TextInput
-                style={styles.inputWithIcon}
+                style={styles.inputRow}
                 placeholder="Ad Soyad"
                 placeholderTextColor={colors.textSecondary}
                 value={fullName}
@@ -118,10 +118,10 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
                 name="calendar"
                 size={20}
                 color={colors.primary}
-                style={styles.inputIconAbsolute}
+                style={styles.inputIcon}
               />
               <TextInput
-                style={styles.inputWithIcon}
+                style={styles.inputRow}
                 placeholder="Yaş"
                 placeholderTextColor={colors.textSecondary}
                 value={age}
@@ -136,21 +136,19 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
                 name="gender-male-female"
                 size={20}
                 color={colors.primary}
-                style={styles.inputIconAbsolute}
+                style={styles.inputIcon}
               />
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={gender}
-                  onValueChange={(itemValue) => setGender(itemValue)}
-                  style={styles.pickerWithIcon}
-                  dropdownIconColor={colors.primary}
-                >
-                  <Picker.Item label="Cinsiyet seçiniz" value="" />
-                  <Picker.Item label="Erkek" value="Erkek" />
-                  <Picker.Item label="Kadın" value="Kadın" />
-                  <Picker.Item label="Diğer" value="Diğer" />
-                </Picker>
-              </View>
+              <Picker
+                selectedValue={gender}
+                onValueChange={(itemValue) => setGender(itemValue)}
+                style={styles.inputRow}
+                dropdownIconColor={colors.primary}
+              >
+                <Picker.Item label="Cinsiyet seçiniz" value="" />
+                <Picker.Item label="Erkek" value="Erkek" />
+                <Picker.Item label="Kadın" value="Kadın" />
+                <Picker.Item label="Diğer" value="Diğer" />
+              </Picker>
             </View>
 
             {/* --- Meslek --- */}
@@ -159,10 +157,10 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
                 name="briefcase"
                 size={20}
                 color={colors.primary}
-                style={styles.inputIconAbsolute}
+                style={styles.inputIcon}
               />
               <TextInput
-                style={styles.inputWithIcon}
+                style={styles.inputRow}
                 placeholder="Meslek"
                 placeholderTextColor={colors.textSecondary}
                 value={job}
@@ -176,21 +174,19 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
                 name="home-city"
                 size={20}
                 color={colors.primary}
-                style={styles.inputIconAbsolute}
+                style={styles.inputIcon}
               />
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={city}
-                  onValueChange={(itemValue) => setCity(itemValue)}
-                  style={styles.pickerWithIcon}
-                  dropdownIconColor={colors.primary}
-                >
-                  <Picker.Item label="Şehir seçiniz" value="" />
-                  {turkiyeIlleri.map((il) => (
-                    <Picker.Item key={il} label={il} value={il} />
-                  ))}
-                </Picker>
-              </View>
+              <Picker
+                selectedValue={city}
+                onValueChange={(itemValue) => setCity(itemValue)}
+                style={styles.inputRow}
+                dropdownIconColor={colors.primary}
+              >
+                <Picker.Item label="Şehir seçiniz" value="" />
+                {turkiyeIlleri.map((il) => (
+                  <Picker.Item key={il} label={il} value={il} />
+                ))}
+              </Picker>
             </View>
           </Animatable.View>
         </ScrollView>
@@ -237,7 +233,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   formContainer: {
-    marginTop: 20, // Formu header’ın altına iyice indirdik
+    marginTop: 20,                      // Form header’ın altından başlasın
     backgroundColor: colors.formBackground,
     marginHorizontal: spacing.medium,
     borderRadius: 16,
@@ -251,58 +247,51 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 
-  /* Bu kapsayıcı, her input (TextInput veya Picker) için ortak */
+  /* 
+    Ortak wrapper: hem TextInput, hem Picker
+    - flexDirection: 'row' => ikon ve girdi alanını yanyana koyar
+    - alignItems: 'center' => dikeyde her ikisini de ortalar
+    - height: 50 => her satır aynı yükseklik
+  */
   inputWrapper: {
     marginBottom: spacing.medium,
-    position: 'relative', // içindeki ikonun absolute olarak konumlanması için
-  },
-  /* İkonun input/Picker içine yerleştiği tam konum */
-  inputIconAbsolute: {
-    position: 'absolute',
-    left: 12,
-    top: '50%',
-    marginTop: -10, // ikonun dikey ortalanması (ikon boyutu: 20px)
-    zIndex: 10,
-  },
-  /* TextInput için kullanılan genel stil 
-     - paddingLeft: 40 => 12px (ikon ve kutu kenarı) + 20px ikon genişliği + 8px ek boşluk */
-  inputWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
-    paddingHorizontal: 40,
-    paddingVertical: 10,
-    fontSize: fontSizes.regular,
-    color: colors.textPrimary,
-  },
-
-  /* Picker’ı çevreleyen kutu (border, köşe yuvarlama, gölge) */
-  pickerContainer: {
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    minHeight: 50, // ikonun tam dikey ortalanması için
-    justifyContent: 'center',
-    // Gölge
+    paddingHorizontal: spacing.small,  // sol-sağ kenar boşluk (ör. 12px)
+    // Gölge (iOS)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    // Elevation (Android)
     elevation: 2,
   },
-  /* Picker’ın kendi stili: 
-     - paddingLeft: 40 sayesinde sol ikonun üstüne gelmez
-     - height: 50 kutu yüksekliğiyle eşleşir */
-  pickerWithIcon: {
-    height: 50,
-    width: '100%',
-    paddingLeft: 40,
+  /* 
+    TextInput veya Picker:
+    - flex: 1 => Kalan yatay boşluğu kaplasın
+    - height: '100%' => Wrapper’ın (50px) yüksekliğini alsın
+  */
+  inputRow: {
+    flex: 1,
+    height: '100%',
+    fontSize: fontSizes.regular,
     color: colors.textPrimary,
   },
+  /* 
+    İkona yalnızca marginRight verdik; artık absolute değil
+  */
+  inputIcon: {
+    marginRight: spacing.small, // örneğin 12px
+  },
 
-  /* Kaydet butonunun bulunduğu alt kısım */
+  /* 
+    Kaydet butonunun bulunduğu alt kısım
+  */
   buttonContainer: {
     padding: spacing.medium,
     backgroundColor: colors.background,
