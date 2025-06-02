@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -33,8 +34,8 @@ const ReminderSelectionScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* 1) Gradient Background */}
+    <SafeAreaView style={styles.container}>
+      {/* Gradient’li Transparan Arka Plan */}
       <LinearGradient
         colors={[colors.secondary, colors.primary]}
         start={{ x: 0, y: 0 }}
@@ -42,7 +43,7 @@ const ReminderSelectionScreen: React.FC = () => {
         style={styles.gradientBackground}
       />
 
-      {/* 2) Başlık */}
+      {/* Animasyonlu Başlık */}
       <Animatable.Text
         animation="fadeInDown"
         duration={800}
@@ -58,8 +59,9 @@ const ReminderSelectionScreen: React.FC = () => {
         Bugün neyi hatırlamak istersiniz?
       </Animatable.Text>
 
-      {/* 3) Butonlar */}
+      {/* Buton grubu */}
       <View style={styles.buttonsContainer}>
+        {/* Su İçme Butonu: Arada pulse efekti */}
         <Animatable.View animation="pulse" iterationCount="infinite" iterationDelay={3000}>
           <TouchableOpacity
             style={[styles.button, styles.shadow]}
@@ -98,7 +100,7 @@ const ReminderSelectionScreen: React.FC = () => {
           <Text style={styles.buttonText}>Diğer</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -109,4 +111,52 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  gradient
+  gradientBackground: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.2, // yarı transparan gradient
+  },
+  title: {
+    fontSize: fontSizes.title,
+    fontWeight: '700',
+    color: colors.primary,
+    marginTop: spacing.large * 1.5,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: fontSizes.subtitle,
+    fontWeight: '400',
+    color: colors.textSecondary,
+    marginTop: spacing.small,
+    marginBottom: spacing.large,
+    textAlign: 'center',
+  },
+  buttonsContainer: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.large,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.accent,
+    width: BUTTON_WIDTH,
+    height: BUTTON_HEIGHT,
+    borderRadius: 12,
+    justifyContent: 'center',
+    marginVertical: spacing.small,
+  },
+  buttonText: {
+    color: colors.background,
+    fontSize: fontSizes.button,
+    fontWeight: '500',
+    marginLeft: spacing.small,
+  },
+  shadow: {
+    // iOS için gölge
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    // Android için elevation
+    elevation: 5,
+  },
+});

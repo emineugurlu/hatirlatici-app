@@ -89,12 +89,21 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Animatable.View animation="slideInUp" duration={800} style={styles.formContainer}>
-            {/* Ad Soyad */}
-            <View style={styles.inputGroup}>
-              <Icon name="account" size={20} color={colors.primary} style={styles.inputIcon} />
+          <Animatable.View
+            animation="slideInUp"
+            duration={800}
+            style={styles.formContainer}
+          >
+            {/* --- Ad Soyad --- */}
+            <View style={styles.inputWrapper}>
+              <Icon
+                name="account"
+                size={20}
+                color={colors.primary}
+                style={styles.inputIconAbsolute}
+              />
               <TextInput
-                style={styles.input}
+                style={styles.inputWithIcon}
                 placeholder="Ad Soyad"
                 placeholderTextColor={colors.textSecondary}
                 value={fullName}
@@ -103,11 +112,16 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
               />
             </View>
 
-            {/* Yaş */}
-            <View style={styles.inputGroup}>
-              <Icon name="calendar" size={20} color={colors.primary} style={styles.inputIcon} />
+            {/* --- Yaş --- */}
+            <View style={styles.inputWrapper}>
+              <Icon
+                name="calendar"
+                size={20}
+                color={colors.primary}
+                style={styles.inputIconAbsolute}
+              />
               <TextInput
-                style={styles.input}
+                style={styles.inputWithIcon}
                 placeholder="Yaş"
                 placeholderTextColor={colors.textSecondary}
                 value={age}
@@ -116,30 +130,39 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
               />
             </View>
 
-            {/* Cinsiyet */}
-            <View style={styles.pickerLabelContainer}>
-              <Icon name="gender-male-female" size={20} color={colors.primary} style={styles.inputIcon} />
-              <Text style={styles.label}>Cinsiyet</Text>
-            </View>
-            <View style={styles.pickerWrapper}>
-              <Picker
-                selectedValue={gender}
-                onValueChange={(itemValue) => setGender(itemValue)}
-                style={styles.picker}
-                dropdownIconColor={colors.primary}
-              >
-                <Picker.Item label="Cinsiyet seçiniz" value="" />
-                <Picker.Item label="Erkek" value="Erkek" />
-                <Picker.Item label="Kadın" value="Kadın" />
-                <Picker.Item label="Diğer" value="Diğer" />
-              </Picker>
+            {/* --- Cinsiyet --- */}
+            <View style={styles.inputWrapper}>
+              <Icon
+                name="gender-male-female"
+                size={20}
+                color={colors.primary}
+                style={styles.inputIconAbsolute}
+              />
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={gender}
+                  onValueChange={(itemValue) => setGender(itemValue)}
+                  style={styles.pickerWithIcon}
+                  dropdownIconColor={colors.primary}
+                >
+                  <Picker.Item label="Cinsiyet seçiniz" value="" />
+                  <Picker.Item label="Erkek" value="Erkek" />
+                  <Picker.Item label="Kadın" value="Kadın" />
+                  <Picker.Item label="Diğer" value="Diğer" />
+                </Picker>
+              </View>
             </View>
 
-            {/* Meslek */}
-            <View style={styles.inputGroup}>
-              <Icon name="briefcase" size={20} color={colors.primary} style={styles.inputIcon} />
+            {/* --- Meslek --- */}
+            <View style={styles.inputWrapper}>
+              <Icon
+                name="briefcase"
+                size={20}
+                color={colors.primary}
+                style={styles.inputIconAbsolute}
+              />
               <TextInput
-                style={styles.input}
+                style={styles.inputWithIcon}
                 placeholder="Meslek"
                 placeholderTextColor={colors.textSecondary}
                 value={job}
@@ -147,28 +170,32 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
               />
             </View>
 
-            {/* Şehir */}
-            <View style={styles.pickerLabelContainer}>
-              <Icon name="home-city" size={20} color={colors.primary} style={styles.inputIcon} />
-              <Text style={styles.label}>Şehir</Text>
-            </View>
-            <View style={styles.pickerWrapper}>
-              <Picker
-                selectedValue={city}
-                onValueChange={(itemValue) => setCity(itemValue)}
-                style={styles.picker}
-                dropdownIconColor={colors.primary}
-              >
-                <Picker.Item label="Şehir seçiniz" value="" />
-                {turkiyeIlleri.map((il) => (
-                  <Picker.Item key={il} label={il} value={il} />
-                ))}
-              </Picker>
+            {/* --- Şehir --- */}
+            <View style={styles.inputWrapper}>
+              <Icon
+                name="home-city"
+                size={20}
+                color={colors.primary}
+                style={styles.inputIconAbsolute}
+              />
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={city}
+                  onValueChange={(itemValue) => setCity(itemValue)}
+                  style={styles.pickerWithIcon}
+                  dropdownIconColor={colors.primary}
+                >
+                  <Picker.Item label="Şehir seçiniz" value="" />
+                  {turkiyeIlleri.map((il) => (
+                    <Picker.Item key={il} label={il} value={il} />
+                  ))}
+                </Picker>
+              </View>
             </View>
           </Animatable.View>
         </ScrollView>
 
-        {/* 3) Buton */}
+        {/* 3) Kaydet ve Devam Et Butonu */}
         <Animatable.View animation="fadeInUp" delay={500} style={styles.buttonContainer}>
           <Button
             title="Kaydet ve Devam Et"
@@ -210,7 +237,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   formContainer: {
-    marginTop: -50,
+    marginTop: 20, // Formu header’ın altına iyice indirdik
     backgroundColor: colors.formBackground,
     marginHorizontal: spacing.medium,
     borderRadius: 16,
@@ -223,42 +250,41 @@ const styles = StyleSheet.create({
     // Elevation (Android)
     elevation: 4,
   },
-  inputGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
+
+  /* Bu kapsayıcı, her input (TextInput veya Picker) için ortak */
+  inputWrapper: {
     marginBottom: spacing.medium,
+    position: 'relative', // içindeki ikonun absolute olarak konumlanması için
   },
-  inputIcon: {
-    marginRight: spacing.small,
+  /* İkonun input/Picker içine yerleştiği tam konum */
+  inputIconAbsolute: {
+    position: 'absolute',
+    left: 12,
+    top: '50%',
+    marginTop: -10, // ikonun dikey ortalanması (ikon boyutu: 20px)
+    zIndex: 10,
   },
-  input: {
-    flex: 1,
+  /* TextInput için kullanılan genel stil 
+     - paddingLeft: 40 => 12px (ikon ve kutu kenarı) + 20px ikon genişliği + 8px ek boşluk */
+  inputWithIcon: {
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 40,
     paddingVertical: 10,
     fontSize: fontSizes.regular,
     color: colors.textPrimary,
   },
-  pickerLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.small,
-    marginBottom: spacing.xsmall,
-  },
-  label: {
-    fontSize: fontSizes.label,
-    color: colors.textSecondary,
-    marginLeft: spacing.small,
-  },
-  pickerWrapper: {
+
+  /* Picker’ı çevreleyen kutu (border, köşe yuvarlama, gölge) */
+  pickerContainer: {
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
-    marginBottom: spacing.medium,
+    minHeight: 50, // ikonun tam dikey ortalanması için
+    justifyContent: 'center',
     // Gölge
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -266,11 +292,17 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  picker: {
+  /* Picker’ın kendi stili: 
+     - paddingLeft: 40 sayesinde sol ikonun üstüne gelmez
+     - height: 50 kutu yüksekliğiyle eşleşir */
+  pickerWithIcon: {
     height: 50,
     width: '100%',
+    paddingLeft: 40,
     color: colors.textPrimary,
   },
+
+  /* Kaydet butonunun bulunduğu alt kısım */
   buttonContainer: {
     padding: spacing.medium,
     backgroundColor: colors.background,
