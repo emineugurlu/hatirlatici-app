@@ -7,19 +7,19 @@ import {
   TextInput,
   Button,
   StyleSheet,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   Alert,
   SafeAreaView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import turkiyeIlleri from '../data/cities'; // 81 ilin adı
+import turkiyeIlleri from '../data/cities';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList, UserData } from '../../App'; // Tipleri çekiyoruz
+import { RootStackParamList, UserData } from '../../App';
 
 type OnboardingProps = NativeStackScreenProps<RootStackParamList, 'Onboarding'> & {
   onComplete: (data: UserData) => void;
@@ -33,7 +33,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [city, setCity] = useState('');
 
   const handleSubmit = () => {
-    // Boşluk kontrolü
+    // Boş kontrolleri
     if (!fullName.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen Ad Soyad kısmını doldurun.');
       return;
@@ -55,7 +55,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
       return;
     }
 
-    // onComplete ile UserData’yı yukarıya (App.tsx) gönderiyoruz
+    // Tüm veriler tamamsa, UserData objesini oluşturup yukarıya gönder
     const data: UserData = {
       fullName: fullName.trim(),
       age: Number(age),
@@ -91,7 +91,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
         </Animatable.Text>
       </LinearGradient>
 
-      {/* Form Alanları */}
+      {/* Form */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.select({ ios: 'padding', android: undefined })}
@@ -206,6 +206,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
           </Animatable.View>
         </ScrollView>
 
+        {/* Kaydet Butonu */}
         <Animatable.View animation="fadeInUp" delay={500} style={styles.buttonContainer}>
           <Button
             title="Kaydet ve Devam Et"
@@ -220,7 +221,6 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
 
 export default OnboardingScreen;
 
-// Stil tanımları
 const styles = StyleSheet.create({
   container: {
     flex: 1,

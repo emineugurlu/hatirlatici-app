@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
-  NativeStackScreenProps,
+  NativeStackScreenProps
 } from '@react-navigation/native-stack';
 
 import OnboardingScreen from './src/screens/OnboardingScreen';
@@ -14,17 +14,7 @@ import MealReminderScreen from './src/screens/MealReminderScreen';
 import MeetingReminderScreen from './src/screens/MeetingReminderScreen';
 import OtherReminderScreen from './src/screens/OtherReminderScreen';
 
-// 1) Stack parametreleri
-export type RootStackParamList = {
-  Onboarding: undefined;
-  ReminderSelection: { userData: UserData };
-  WaterReminder: { userData: UserData };
-  MealReminder: { userData: UserData };
-  MeetingReminder: { userData: UserData };
-  OtherReminder: { userData: UserData };
-};
-
-// 2) Kullanıcı verileri tipi
+// 1) Kullanıcı verileri tipi
 export interface UserData {
   fullName: string;
   age: number;
@@ -33,30 +23,37 @@ export interface UserData {
   city: string;
 }
 
+// 2) Navigation parametre listesi (hepsi undefined, çünkü ek “userData” prop’u kullanıyoruz)
+export type RootStackParamList = {
+  Onboarding: undefined;
+  ReminderSelection: undefined;
+  WaterReminder: undefined;
+  MealReminder: undefined;
+  MeetingReminder: undefined;
+  OtherReminder: undefined;
+};
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: React.FC = () => {
-  // “Onboarding tamamlandı mı” kontrolü
+  // Onboarding tamamlanana kadar null. Tamamlandığında UserData objesi.
   const [userData, setUserData] = useState<UserData | null>(null);
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {/* Eğer userData yoksa (Onboarding yapılmadıysa), OnboardingScreen’i göster */}
+        {/* Eğer henüz onboarding yapılmadıysa */}
         {!userData ? (
           <Stack.Screen name="Onboarding" options={{ headerShown: false }}>
             {props => (
               <OnboardingScreen
                 {...props}
-                onComplete={(data) => {
-                  // Onboarding tamamlandığında userData’yı kaydet
-                  setUserData(data);
-                }}
+                onComplete={(data) => setUserData(data)}
               />
             )}
           </Stack.Screen>
         ) : (
-          // Onboarding yapıldıysa, diğer ekranlara geç
+          // Onboarding tamamlandıysa diğer ekranlara geç
           <>
             <Stack.Screen
               name="ReminderSelection"

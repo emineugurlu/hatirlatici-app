@@ -12,17 +12,14 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
 
-// Örnek detoks tarifleri: 
-// Her bir tarif, mesleğe ve yaş aralığına göre öneri verebilsin diye bir obje
 interface DetoxRecipe {
   title: string;
   description: string;
   minAge: number;
   maxAge: number;
-  professions: string[]; // Bu mesleklere uygun
+  professions: string[];
 }
 
-// Bu diziyi dilediğiniz kadar örnek tarifle genişletebilirsiniz
 const detoxRecipes: DetoxRecipe[] = [
   {
     title: 'Yeşil Çay + Limonlu Su',
@@ -50,14 +47,14 @@ const detoxRecipes: DetoxRecipe[] = [
   },
 ];
 
-type WaterProps = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'> & {
+  userData: UserData;
+};
 
-const WaterReminderScreen: React.FC<WaterProps & { userData: UserData }> = ({
-  userData,
-}) => {
+const WaterReminderScreen: React.FC<Props> = ({ userData }) => {
   const [glassCount, setGlassCount] = useState('');
 
-  // Kullanıcının yaş ve mesleğine uygun detoks tariflerini döndüren fonksiyon
+  // Kullanıcının yaş ve mesleğine uygun tarifleri döndüren fonksiyon
   const getDetoxForUser = (
     recipes: DetoxRecipe[],
     user: UserData
@@ -72,13 +69,10 @@ const WaterReminderScreen: React.FC<WaterProps & { userData: UserData }> = ({
   };
 
   const handleSave = () => {
-    // Burada glassCount’u kaydedebilir veya lokal state’te tutabilirsiniz.
-    // Ardından ekranda öneri olarak detoks tariflerini gösterelim.
-    // (Burada kaydetme işlemi basitçe console.log)
-    console.log('Su Maski: ', glassCount);
+    // Burada glassCount’u kaydetmek isterseniz yapabilirsiniz
+    console.log('Kaç bardak: ', glassCount);
   };
 
-  // Kullanıcının uygun tariflerini hesapla
   const userDetox = getDetoxForUser(detoxRecipes, userData);
 
   return (
@@ -94,7 +88,6 @@ const WaterReminderScreen: React.FC<WaterProps & { userData: UserData }> = ({
       />
       <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
 
-      {/* Eğer harvest verisi kaydedildiyse veya gösterilecekse: */}
       {userDetox.length > 0 ? (
         <View style={styles.suggestionContainer}>
           <Text style={styles.suggestionTitle}>Detoks Önerileri:</Text>
@@ -108,7 +101,7 @@ const WaterReminderScreen: React.FC<WaterProps & { userData: UserData }> = ({
       ) : (
         <View style={styles.suggestionContainer}>
           <Text style={styles.suggestionTitle}>
-            Sizin için özel detoks tarifi bulunamadı.
+            Sizin için uygun detoks tarifi bulunamadı.
           </Text>
         </View>
       )}
@@ -118,7 +111,6 @@ const WaterReminderScreen: React.FC<WaterProps & { userData: UserData }> = ({
 
 export default WaterReminderScreen;
 
-// Stil dosyası
 const styles = StyleSheet.create({
   container: {
     padding: 16,
@@ -127,6 +119,7 @@ const styles = StyleSheet.create({
   questionText: {
     fontSize: 18,
     marginBottom: 12,
+    color: '#333333',
   },
   input: {
     borderWidth: 1,
@@ -136,6 +129,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 12,
     fontSize: 16,
+    color: '#333333',
   },
   suggestionContainer: {
     marginTop: 20,

@@ -13,31 +13,26 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
 
-// Basit bir “Hava Durumu” tipi (örn. sıcaklık ve durum)
-// Gerçek kullanımda bir API’yi çağırıp state’e atarsınız.
 interface WeatherInfo {
   temperature: number; // °C
-  description: string; // "Güneşli", "Yağmurlu", vb.
+  description: string; // Güneşli, Bulutlu, vb.
 }
 
-// Basit statik hava durumu verisi (şehir bazlı)
 const cityWeatherMap: Record<string, WeatherInfo> = {
-  Istanbul: { temperature: 22, description: 'Güneşli' },
-  Ankara: { temperature: 18, description: 'Bulutlu' },
-  Izmir: { temperature: 25, description: 'Güneşli' },
-  Bingöl: { temperature: 12, description: 'Yağmurlu' },
-  // İstediğiniz kadar şehir ekleyin
+  'İstanbul': { temperature: 22, description: 'Güneşli' },
+  'Ankara': { temperature: 18, description: 'Bulutlu' },
+  'İzmir': { temperature: 25, description: 'Güneşli' },
+  'Bingöl': { temperature: 12, description: 'Yağmurlu' },
+  // Diğer şehirleri ekleyebilirsiniz...
 };
 
-// Giyim öneri tipi
 interface ClothingSuggestion {
   minTemp: number;
   maxTemp: number;
-  professions: string[]; // Hangi mesleklere uygun
+  professions: string[];
   recommendation: string;
 }
 
-// Örnek giyim öneri listesi
 const clothingSuggestions: ClothingSuggestion[] = [
   {
     minTemp: -10,
@@ -51,7 +46,7 @@ const clothingSuggestions: ClothingSuggestion[] = [
     maxTemp: 18,
     professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Mühendis'],
     recommendation:
-      'Serin bir hava var. İnce bir kazak veya spor ceket, altına uzun pantolon önerilir.',
+      'Serin bir hava var. İnce bir kazak veya hafif ceket, altına uzun pantolon önerilir.',
   },
   {
     minTemp: 19,
@@ -65,30 +60,27 @@ const clothingSuggestions: ClothingSuggestion[] = [
     maxTemp: 50,
     professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Mühendis'],
     recommendation:
-      'Çok sıcak bir hava var. Açık renkli kısa kollu gömlek ve şort (eğer ofis kuralları izin veriyorsa) ya da ince kumaş pantolon tercih edebilirsiniz.',
+      'Çok sıcak bir hava var. Açık renkli kısa kollu gömlek ve ince kumaş pantolon (eğer işyeri izni varsa şort) tercih edebilirsiniz.',
   },
 ];
 
-type MeetingProps = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'> & {
+type Props = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'> & {
   userData: UserData;
 };
 
-const MeetingReminderScreen: React.FC<MeetingProps> = ({ userData }) => {
-  const [meetingDate, setMeetingDate] = useState(''); // “DD/MM/YY 14:00” gibi
+const MeetingReminderScreen: React.FC<Props> = ({ userData }) => {
+  const [meetingDate, setMeetingDate] = useState('');
   const [meetingTopic, setMeetingTopic] = useState('');
 
-  // Kullanıcının şehrine göre statik hava bilgisini getir
   const getWeatherForCity = (cityName: string): WeatherInfo | null => {
     return cityWeatherMap[cityName] || null;
   };
 
-  // Kullanıcının mesleğine ve sıcaklığa göre giyim önerisi
   const getClothingSuggestion = (
     weather: WeatherInfo,
     user: UserData
   ): string => {
     const temp = weather.temperature;
-    // Listeden ilk eşleşeni bul
     const found = clothingSuggestions.find(
       (item) =>
         temp >= item.minTemp &&
@@ -97,7 +89,7 @@ const MeetingReminderScreen: React.FC<MeetingProps> = ({ userData }) => {
     );
     return found
       ? found.recommendation
-      : 'Hava verileri bulunamadı. Lütfen günlük giyiminize göre rahat bir kombin seçin.';
+      : 'Hava bilgisi tam değil. Lütfen günlük giyim tercihinize güvenin.';
   };
 
   const handleSave = () => {
@@ -113,11 +105,10 @@ const MeetingReminderScreen: React.FC<MeetingProps> = ({ userData }) => {
     console.log('Toplantı Konusu:', meetingTopic);
   };
 
-  // Şehrin hava durumunu al
   const weather = getWeatherForCity(userData.city);
   const clothingAdvice = weather
     ? getClothingSuggestion(weather, userData)
-    : 'Hava bilgisi bulunamadı. Lütfen genel giyim önerilerine bakın.';
+    : 'Hava verisi bulunamadı. Genel giyim tercihlerinize bakın.';
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -141,7 +132,6 @@ const MeetingReminderScreen: React.FC<MeetingProps> = ({ userData }) => {
       <View style={{ height: 12 }} />
       <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
 
-      {/* Giyim Önerisi */}
       <View style={styles.suggestionContainer}>
         <Text style={styles.suggestionTitle}>Giyim Önerisi</Text>
         <Text style={styles.suggestionText}>{clothingAdvice}</Text>
@@ -161,6 +151,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 12,
+    color: '#333333',
   },
   input: {
     borderWidth: 1,

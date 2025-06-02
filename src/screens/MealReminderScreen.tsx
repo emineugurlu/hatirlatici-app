@@ -14,13 +14,12 @@ import { RootStackParamList, UserData } from '../../App';
 
 interface MealEntry {
   time: string;       // Örn. '08:00'
-  description: string;// Örn. 'Yumurta, ekmek, peynir'
+  description: string;// Örn. 'Yumurta, peynir, ekmek'
 }
 
-// Örnek “Ertesi gün menü önerileri” tipi
 interface MealSuggestion {
   title: string;
-  items: string[];    // Örn. ['Sabah: Yulaf ezmesi + meyve', 'Öğle: Izgara tavuk + salata', …]
+  items: string[];
   suitableFor: {
     minAge: number;
     maxAge: number;
@@ -28,15 +27,14 @@ interface MealSuggestion {
   };
 }
 
-// Örnek öneri listesi. İhtiyaçlarınıza göre genişletin
 const mealSuggestions: MealSuggestion[] = [
   {
     title: 'Genç Yazılımcı Dengesi',
     items: [
-      'Sabah: Yulaf ezmesi + 1 adet muz',
-      'Ara Öğün: 5–6 adet çiğ badem',
-      'Öğle: Izgara tavuk göğsü + bol yeşillik',
-      'Ara Öğün: Yoğurt + 1 tatlı kaşığı chia tohumu',
+      'Sabah: Yulaf ezmesi + muz',
+      'Ara Öğün: 5–6 adet badem',
+      'Öğle: Izgara tavuk + bol yeşillik',
+      'Ara Öğün: Yoğurt + 1 çay kaşığı chia tohumu',
       'Akşam: Fırında somon + kuşkonmaz',
     ],
     suitableFor: {
@@ -50,7 +48,7 @@ const mealSuggestions: MealSuggestion[] = [
     items: [
       'Sabah: Tam buğday ekmek + avokado + haşlanmış yumurta',
       'Ara Öğün: 1 elma',
-      'Öğle: Hindi göğsü + kahverengi pirinç + haşlanmış brokoli',
+      'Öğle: Hindi göğsü + kahverengi pirinç + brokoli',
       'Ara Öğün: Havuç + humus',
       'Akşam: Sebzeli kinoa salatası + zeytinyağı',
     ],
@@ -66,7 +64,7 @@ const mealSuggestions: MealSuggestion[] = [
       'Sabah: Karışık meyve tabağı + yulaf sütü',
       'Ara Öğün: 1 avuç fındık',
       'Öğle: Mercimek çorbası + tam buğday ekmek',
-      'Ara Öğün: Kefir + 1 yemek kaşığı keten tohumu',
+      'Ara Öğün: Kefir + 1 tatlı kaşığı keten tohumu',
       'Akşam: Fırınlanmış sebzeler + ızgara hindi',
     ],
     suitableFor: {
@@ -77,17 +75,20 @@ const mealSuggestions: MealSuggestion[] = [
   },
 ];
 
-type MealProps = NativeStackScreenProps<RootStackParamList, 'MealReminder'> & {
+type Props = NativeStackScreenProps<RootStackParamList, 'MealReminder'> & {
   userData: UserData;
 };
 
-const MealReminderScreen: React.FC<MealProps> = ({ userData }) => {
+const MealReminderScreen: React.FC<Props> = ({ userData }) => {
   const [entries, setEntries] = useState<MealEntry[]>([
     { time: '', description: '' },
   ]);
 
-  // Kullanıcıya uygun önerileri bulur
-  const getMealSuggestionForUser = (suggestions: MealSuggestion[], user: UserData) => {
+  // Kullanıcının yaş ve mesleğine uygun öneriyi döner
+  const getMealSuggestionForUser = (
+    suggestions: MealSuggestion[],
+    user: UserData
+  ) => {
     return suggestions.find((s) => {
       return (
         user.age >= s.suitableFor.minAge &&
@@ -97,7 +98,7 @@ const MealReminderScreen: React.FC<MealProps> = ({ userData }) => {
     });
   };
 
-  const handleChange = (index: number, field: 'time' | 'description', value: string) => {
+  const handleChange = (index: number, field: keyof MealEntry, value: string) => {
     const copy = [...entries];
     copy[index] = { ...copy[index], [field]: value };
     setEntries(copy);
@@ -108,7 +109,6 @@ const MealReminderScreen: React.FC<MealProps> = ({ userData }) => {
   };
 
   const handleSave = () => {
-    // Burada entries’i kaydedebilir (örneğin lokal state veya async storage vb.)
     console.log('Bugünkü öğünler:', entries);
   };
 
@@ -141,7 +141,6 @@ const MealReminderScreen: React.FC<MealProps> = ({ userData }) => {
       <View style={{ height: 12 }} />
       <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
 
-      {/* Kullanıcıya Uygun Öneriyi Göster */}
       {userSuggestion ? (
         <View style={styles.suggestionContainer}>
           <Text style={styles.suggestionTitle}>Yarınki Menü Önerisi:</Text>
@@ -173,6 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 12,
+    color: '#333333',
   },
   entryRow: {
     flexDirection: 'row',
@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
     height: 50,
     paddingHorizontal: 12,
     fontSize: 14,
+    color: '#333333',
   },
   suggestionContainer: {
     marginTop: 24,
