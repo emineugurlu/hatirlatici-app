@@ -1,5 +1,3 @@
-// src/screens/OtherReminderScreen.tsx
-
 import React, { useState } from 'react';
 import {
   View,
@@ -12,6 +10,8 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
+import { db } from '../firebase/firebaseConfig';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OtherReminder'>;
 
@@ -19,7 +19,6 @@ const OtherReminderScreen: React.FC<Props> = ({ route }) => {
   const userData: UserData = route.params.userData;
   const [customReminder, setCustomReminder] = useState('');
 
-  // Mesleğe göre basit tavsiye metni oluştur
   const getAdviceForJob = (job: string): string => {
     switch (job) {
       case 'Öğrenci':
@@ -37,12 +36,28 @@ const OtherReminderScreen: React.FC<Props> = ({ route }) => {
 
   const adviceText = getAdviceForJob(userData.job);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!customReminder.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen hatırlatmak istediğiniz şeyi yazın.');
       return;
     }
-    console.log('Kullanıcı Özel Hatırlatma:', customReminder);
+
+    try {
+      await addDoc(collection(db, 'reminders'), {
+        user: userData.fullName,
+        city: userData.city,
+        job: userData.job,
+        reminder: customReminder,
+        createdAt: Timestamp.now(),
+        type: 'diğer',
+      });
+
+      Alert.alert('Başarılı', 'Hatırlatma kaydedildi.');
+      setCustomReminder('');
+    } catch (error) {
+      console.error('Firestore Hatası:', error);
+      Alert.alert('Hata', 'Veri kaydedilirken bir sorun oluştu.');
+    }
   };
 
   return (

@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList, UserData } from '../../App';
 
-const WaterReminderScreen = () => {
+// Props tipi: route üzerinden userData alıyoruz
+type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
+
+const WaterReminderScreen: React.FC<Props> = ({ route }) => {
+  const userData: UserData = route.params.userData;
+
   const [glasses, setGlasses] = useState('');
   const [glassIcons, setGlassIcons] = useState<string[]>([]);
   const [recipe, setRecipe] = useState<null | {
@@ -56,7 +70,10 @@ const WaterReminderScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Gün içinde kaç bardak su içtiniz?</Text>
+      <Text style={styles.title}>
+        Gün içinde kaç bardak su içtiniz, {userData.fullName}?
+      </Text>
+
       <TextInput
         style={styles.input}
         placeholder="Ör. 6"
@@ -64,6 +81,7 @@ const WaterReminderScreen = () => {
         value={glasses}
         onChangeText={setGlasses}
       />
+
       <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
       {/* 🥤 Bardaklar */}
