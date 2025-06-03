@@ -1,108 +1,88 @@
-// src/screens/WaterReminderScreen.tsx
-
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList, UserData } from '../../App';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 
-interface DetoxRecipe {
-  title: string;
-  description: string;
-  minAge: number;
-  maxAge: number;
-  professions: string[];
-}
-
-const detoxRecipes: DetoxRecipe[] = [
-  {
-    title: 'Yeşil Çay + Limonlu Su',
-    description:
-      'Günde 2 fincan yeşil çay ve limonlu su metabolizmayı hızlandırır. Bilgisayar başında uzun oturanlar için hafif bir enerji kaynağıdır.',
-    minAge: 18,
-    maxAge: 35,
-    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Öğrenci'],
-  },
-  {
-    title: 'Salatalık ve Nane Kürü',
-    description:
-      '1 dilim salatalık + birkaç yaprak taze nane + 1 litre su. Özellikle uzun süre oturarak çalışanlara rahatlık verir.',
-    minAge: 25,
-    maxAge: 50,
-    professions: ['Bilgisayar Mühendisi', 'Tasarımcı', 'Ofis Çalışanı'],
-  },
-  {
-    title: 'Elmalı Tarçınlı Detoks',
-    description:
-      '1 adet elma dilimlenip üzerine tarçın serpilip ılık suyla karıştırılır. 30 yaş ve üzeri ofis çalışanları için ideal.',
-    minAge: 30,
-    maxAge: 60,
-    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Proje Yöneticisi'],
-  },
-];
-
-type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
-
-const WaterReminderScreen: React.FC<Props> = ({ route }) => {
-  const userData: UserData = route.params.userData; // Kesin var
-  const [glassCount, setGlassCount] = useState('');
-
-  // Kullanıcının yaş ve mesleğine uygun tarifleri süz
-  const getDetoxForUser = (
-    recipes: DetoxRecipe[],
-    user: UserData
-  ): DetoxRecipe[] => {
-    return recipes.filter((r) => {
-      return (
-        user.age >= r.minAge &&
-        user.age <= r.maxAge &&
-        r.professions.includes(user.job)
-      );
-    });
-  };
+const WaterReminderScreen = () => {
+  const [glasses, setGlasses] = useState('');
+  const [glassIcons, setGlassIcons] = useState<string[]>([]);
+  const [recipe, setRecipe] = useState<null | {
+    name: string;
+    ingredients: string[];
+    instructions: string;
+  }>(null);
 
   const handleSave = () => {
-    console.log('Kaç bardak: ', glassCount);
-  };
+    const count = parseInt(glasses);
+    if (isNaN(count) || count < 0) {
+      setGlassIcons([]);
+      setRecipe(null);
+      return;
+    }
 
-  const userDetox = getDetoxForUser(detoxRecipes, userData);
+    // 🥤 Bardak ikonları
+    const icons = Array.from({ length: Math.min(count, 10) }, () => '🥤');
+    setGlassIcons(icons);
+
+    // 🍹 Detoks tarifleri
+    let newRecipe = null;
+
+    if (count <= 2) {
+      newRecipe = {
+        name: 'Limonlu Canlandırıcı',
+        ingredients: ['1 bardak ılık su', 'Yarım limon suyu'],
+        instructions: 'Suyu hafif ısıtın. Limon suyunu ekleyip sabah aç karnına için.',
+      };
+    } else if (count <= 5) {
+      newRecipe = {
+        name: 'Naneli Ferahlık',
+        ingredients: ['1 litre su', '1 limon dilimleri', '5-6 nane yaprağı'],
+        instructions: 'Tüm malzemeleri sürahiye koyun. 1 saat buzdolabında bekletin.',
+      };
+    } else if (count <= 8) {
+      newRecipe = {
+        name: 'Çilekli Detoks',
+        ingredients: ['1 litre su', '6 çilek', 'Yarım limon', '2-3 nane yaprağı'],
+        instructions: 'Malzemeleri karıştırın. En az 2 saat buzdolabında bekletip tüketin.',
+      };
+    } else {
+      newRecipe = {
+        name: 'Salatalıklı Canlandırıcı',
+        ingredients: ['1 litre su', 'Yarım salatalık', '1 limon', 'Nane'],
+        instructions: 'Tüm malzemeleri ince dilimleyip sürahiye ekleyin. 3 saat soğutun.',
+      };
+    }
+
+    setRecipe(newRecipe);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.questionText}>
-        Gün içinde kaç bardak su içtiniz?
-      </Text>
+      <Text style={styles.title}>Gün içinde kaç bardak su içtiniz?</Text>
       <TextInput
         style={styles.input}
         placeholder="Ör. 6"
-        placeholderTextColor="#888"
         keyboardType="numeric"
-        value={glassCount}
-        onChangeText={setGlassCount}
+        value={glasses}
+        onChangeText={setGlasses}
       />
-      <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
+      <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
-      {userDetox.length > 0 ? (
-        <View style={styles.suggestionContainer}>
-          <Text style={styles.suggestionTitle}>Detoks Önerileri:</Text>
-          {userDetox.map((item, idx) => (
-            <View key={idx} style={styles.recipeCard}>
-              <Text style={styles.recipeTitle}>{item.title}</Text>
-              <Text style={styles.recipeDesc}>{item.description}</Text>
-            </View>
+      {/* 🥤 Bardaklar */}
+      <View style={styles.iconContainer}>
+        {glassIcons.map((icon, index) => (
+          <Text key={index} style={styles.icon}>{icon}</Text>
+        ))}
+      </View>
+
+      {/* 🧃 Detoks Kartı */}
+      {recipe && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{recipe.name}</Text>
+          <Text style={styles.cardSubtitle}>Malzemeler:</Text>
+          {recipe.ingredients.map((item, idx) => (
+            <Text key={idx} style={styles.cardItem}>• {item}</Text>
           ))}
-        </View>
-      ) : (
-        <View style={styles.suggestionContainer}>
-          <Text style={styles.suggestionTitle}>
-            Sizin için uygun detoks tarifi bulunamadı.
-          </Text>
+          <Text style={styles.cardSubtitle}>Yapılışı:</Text>
+          <Text style={styles.cardText}>{recipe.instructions}</Text>
         </View>
       )}
     </ScrollView>
@@ -113,47 +93,67 @@ export default WaterReminderScreen;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#FFFFFF',
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
   },
-  questionText: {
+  title: {
     fontSize: 18,
     marginBottom: 12,
-    color: '#333333',
+    textAlign: 'center',
   },
   input: {
+    width: '100%',
     borderWidth: 1,
-    borderColor: '#DDDDDD',
+    borderColor: '#ccc',
     borderRadius: 8,
-    height: 50,
-    paddingHorizontal: 12,
-    marginBottom: 12,
+    padding: 10,
     fontSize: 16,
-    color: '#333333',
+    backgroundColor: '#fff',
+    marginBottom: 10,
   },
-  suggestionContainer: {
-    marginTop: 20,
+  iconContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginVertical: 10,
   },
-  suggestionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#E91E63',
+  icon: {
+    fontSize: 24,
+    margin: 4,
   },
-  recipeCard: {
-    backgroundColor: '#FFF3E0',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+    width: '100%',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  recipeTitle: {
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    marginBottom: 8,
+  },
+  cardSubtitle: {
     fontSize: 16,
     fontWeight: '600',
+    marginTop: 10,
     marginBottom: 4,
-    color: '#333333',
   },
-  recipeDesc: {
+  cardItem: {
     fontSize: 14,
-    color: '#555555',
+    marginLeft: 8,
+    marginBottom: 2,
+  },
+  cardText: {
+    fontSize: 14,
+    marginTop: 4,
   },
 });
