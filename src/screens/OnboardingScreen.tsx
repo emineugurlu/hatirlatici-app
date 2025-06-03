@@ -26,36 +26,60 @@ type OnboardingProps = NativeStackScreenProps<RootStackParamList, 'Onboarding'> 
 };
 
 const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
-  const [fullName, setFullName] = useState('');
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('');
-  const [job, setJob] = useState('');
-  const [city, setCity] = useState('');
+  const [fullName, setFullName] = useState<string>('');
+  const [age, setAge] = useState<string>('');
+  const [gender, setGender] = useState<string>('');
+  const [job, setJob] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+
+  // ───────────────────────────────────────────────────────────────────
+  //  “Ad Soyad” alanı için, hem Türkçe hem Latin harfler + boşluk kabul eden desen:
+  const nameRegex = /^[A-Za-zÇçĞğİıÖöŞşÜü ]+$/u;
+  // ───────────────────────────────────────────────────────────────────
 
   const handleSubmit = () => {
-    // Boş kontrolleri
+    // 1) “Ad Soyad” boş mu?
     if (!fullName.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen Ad Soyad kısmını doldurun.');
+      Alert.alert('Eksik Bilgi', 'Lütfen “Ad Soyad” kısmını doldurun.');
       return;
     }
+    // 2) “Ad Soyad” Türkçe+Latin harf ve boşluk kuralına uyar mı?
+    if (!nameRegex.test(fullName.trim())) {
+      Alert.alert(
+        'Geçersiz Karakter',
+        '“Ad Soyad” kısmına yalnızca Türkçe ve Latin alfabedeki harfleri ile boşluk karakterini girebilirsiniz.'
+      );
+      return;
+    }
+
+    // 3) Yaş boş mu / sayı mı değil mi?
     if (!age.trim() || isNaN(Number(age))) {
       Alert.alert('Geçersiz Bilgi', 'Lütfen geçerli bir yaş girin.');
       return;
     }
+
+    // 4) Cinsiyet seçili mi?
     if (!gender.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen Cinsiyet seçin.');
-      return;
-    }
-    if (!job.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen Meslek kısmını doldurun.');
-      return;
-    }
-    if (!city.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen Şehir seçin.');
+      Alert.alert('Eksik Bilgi', 'Lütfen cinsiyet seçin.');
       return;
     }
 
-    // Tüm veriler tamamsa, UserData objesini oluşturup yukarıya gönder
+    // 5) Meslek boş mu?
+    if (!job.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen “Meslek” kısmını doldurun.');
+      return;
+    }
+
+    // *(İsterseniz “jobRegex” ile meslek alanını da benzer biçimde Türkçe karakter kabul edecek şekilde kontrol edebilirsiniz.)*
+
+    // 6) Şehir seçili mi?
+    if (!city.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen şehir seçin.');
+      return;
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Artık validasyonlar tamam, UserData objesini oluşturup “onComplete” fonksiyonunu çağır:
     const data: UserData = {
       fullName: fullName.trim(),
       age: Number(age),
@@ -68,7 +92,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Gradient Header */}
+      {/* ─── Gradient Header ───────────────────────────────────────── */}
       <LinearGradient
         colors={['#E91E63', '#9C27B0']}
         start={{ x: 0, y: 0 }}
@@ -91,7 +115,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
         </Animatable.Text>
       </LinearGradient>
 
-      {/* Form */}
+      {/* ─── Form Bölümü ─────────────────────────────────────────────── */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.select({ ios: 'padding', android: undefined })}
@@ -105,7 +129,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
             duration={800}
             style={styles.formContainer}
           >
-            {/* Ad Soyad */}
+            {/* ─── Ad Soyad ─────────────────────────────────────────── */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="account"
@@ -118,12 +142,14 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
                 placeholder="Ad Soyad"
                 placeholderTextColor="#888888"
                 value={fullName}
+                // ← Burada artık “replace” filtresi YOK. Doğrudan setFullName kullandık:
                 onChangeText={setFullName}
                 autoCapitalize="words"
+                keyboardType="default"
               />
             </View>
 
-            {/* Yaş */}
+            {/* ─── Yaş ─────────────────────────────────────────────── */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="calendar"
@@ -136,12 +162,17 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
                 placeholder="Yaş"
                 placeholderTextColor="#888888"
                 value={age}
-                onChangeText={setAge}
+                onChangeText={(text) => {
+                  // Sadece rakam kalacak:
+                  const numeric = text.replace(/[^0-9]/g, '');
+                  setAge(numeric);
+                }}
                 keyboardType="numeric"
+                maxLength={3}
               />
             </View>
 
-            {/* Cinsiyet */}
+            {/* ─── Cinsiyet ─────────────────────────────────────────── */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="gender-male-female"
@@ -164,7 +195,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
               </View>
             </View>
 
-            {/* Meslek */}
+            {/* ─── Meslek ───────────────────────────────────────────── */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="briefcase"
@@ -177,11 +208,13 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
                 placeholder="Meslek"
                 placeholderTextColor="#888888"
                 value={job}
-                onChangeText={setJob}
+                onChangeText={setJob}  // ← Burada da “replace” filtresi yok
+                autoCapitalize="words"
+                keyboardType="default"
               />
             </View>
 
-            {/* Şehir */}
+            {/* ─── Şehir ───────────────────────────────────────────── */}
             <View style={styles.inputWrapper}>
               <Icon
                 name="home-city"
@@ -206,7 +239,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
           </Animatable.View>
         </ScrollView>
 
-        {/* Kaydet Butonu */}
+        {/* ─── Kaydet Butonu ─────────────────────────────────────── */}
         <Animatable.View animation="fadeInUp" delay={500} style={styles.buttonContainer}>
           <Button
             title="Kaydet ve Devam Et"
