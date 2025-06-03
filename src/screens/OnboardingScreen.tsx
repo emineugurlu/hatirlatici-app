@@ -33,53 +33,40 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [city, setCity] = useState<string>('');
 
   // ───────────────────────────────────────────────────────────────────
-  //  “Ad Soyad” alanı için, hem Türkçe hem Latin harfler + boşluk kabul eden desen:
-  const nameRegex = /^[A-Za-zÇçĞğİıÖöŞşÜü ]+$/u;
+  // Unicode Property Escape kullanarak “herhangi bir dildeki harf” + boşluk:
+  const nameRegex = /^[\p{L} ]+$/u;
   // ───────────────────────────────────────────────────────────────────
 
   const handleSubmit = () => {
-    // 1) “Ad Soyad” boş mu?
     if (!fullName.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen “Ad Soyad” kısmını doldurun.');
       return;
     }
-    // 2) “Ad Soyad” Türkçe+Latin harf ve boşluk kuralına uyar mı?
     if (!nameRegex.test(fullName.trim())) {
       Alert.alert(
         'Geçersiz Karakter',
-        '“Ad Soyad” kısmına yalnızca Türkçe ve Latin alfabedeki harfleri ile boşluk karakterini girebilirsiniz.'
+        '“Ad Soyad” kısmına yalnızca harf (tüm dillerden) ve boşluk karakteri girebilirsiniz.'
       );
       return;
     }
 
-    // 3) Yaş boş mu / sayı mı değil mi?
     if (!age.trim() || isNaN(Number(age))) {
       Alert.alert('Geçersiz Bilgi', 'Lütfen geçerli bir yaş girin.');
       return;
     }
-
-    // 4) Cinsiyet seçili mi?
     if (!gender.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen cinsiyet seçin.');
       return;
     }
-
-    // 5) Meslek boş mu?
     if (!job.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen “Meslek” kısmını doldurun.');
       return;
     }
-
-    // *(İsterseniz “jobRegex” ile meslek alanını da benzer biçimde Türkçe karakter kabul edecek şekilde kontrol edebilirsiniz.)*
-
-    // 6) Şehir seçili mi?
     if (!city.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen şehir seçin.');
       return;
     }
 
-    // ────────────────────────────────────────────────────────────────
-    // Artık validasyonlar tamam, UserData objesini oluşturup “onComplete” fonksiyonunu çağır:
     const data: UserData = {
       fullName: fullName.trim(),
       age: Number(age),
@@ -142,8 +129,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
                 placeholder="Ad Soyad"
                 placeholderTextColor="#888888"
                 value={fullName}
-                // ← Burada artık “replace” filtresi YOK. Doğrudan setFullName kullandık:
-                onChangeText={setFullName}
+                onChangeText={setFullName}  
                 autoCapitalize="words"
                 keyboardType="default"
               />
@@ -163,7 +149,6 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
                 placeholderTextColor="#888888"
                 value={age}
                 onChangeText={(text) => {
-                  // Sadece rakam kalacak:
                   const numeric = text.replace(/[^0-9]/g, '');
                   setAge(numeric);
                 }}
@@ -208,7 +193,7 @@ const OnboardingScreen: React.FC<OnboardingProps> = ({ onComplete }) => {
                 placeholder="Meslek"
                 placeholderTextColor="#888888"
                 value={job}
-                onChangeText={setJob}  // ← Burada da “replace” filtresi yok
+                onChangeText={setJob}
                 autoCapitalize="words"
                 keyboardType="default"
               />
