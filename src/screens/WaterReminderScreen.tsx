@@ -10,12 +10,33 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
 
-// Props tipi: route üzerinden userData alıyoruz
 type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
 
-const WaterReminderScreen: React.FC<Props> = ({ route }) => {
-  const userData: UserData = route.params.userData;
+const detoxRecipes = [
+  {
+    name: 'Limonlu Canlandırıcı',
+    ingredients: ['1 bardak ılık su', 'Yarım limon suyu'],
+    instructions: 'Suyu hafif ısıtın. Limon suyunu ekleyip sabah aç karnına için.',
+  },
+  {
+    name: 'Naneli Ferahlık',
+    ingredients: ['1 litre su', '1 limon dilimleri', '5-6 nane yaprağı'],
+    instructions: 'Tüm malzemeleri sürahiye koyun. 1 saat buzdolabında bekletin.',
+  },
+  {
+    name: 'Çilekli Detoks',
+    ingredients: ['1 litre su', '6 çilek', 'Yarım limon', '2-3 nane yaprağı'],
+    instructions: 'Malzemeleri karıştırın. En az 2 saat buzdolabında bekletip tüketin.',
+  },
+  {
+    name: 'Salatalıklı Canlandırıcı',
+    ingredients: ['1 litre su', 'Yarım salatalık', '1 limon', 'Nane'],
+    instructions: 'Tüm malzemeleri ince dilimleyip sürahiye ekleyin. 3 saat soğutun.',
+  },
+];
 
+const WaterReminderScreen: React.FC<Props> = ({ route }) => {
+  const { userData } = route.params;
   const [glasses, setGlasses] = useState('');
   const [glassIcons, setGlassIcons] = useState<string[]>([]);
   const [recipe, setRecipe] = useState<null | {
@@ -23,6 +44,11 @@ const WaterReminderScreen: React.FC<Props> = ({ route }) => {
     ingredients: string[];
     instructions: string;
   }>(null);
+
+  const getRandomRecipe = () => {
+    const randomIndex = Math.floor(Math.random() * detoxRecipes.length);
+    return detoxRecipes[randomIndex];
+  };
 
   const handleSave = () => {
     const count = parseInt(glasses);
@@ -32,48 +58,16 @@ const WaterReminderScreen: React.FC<Props> = ({ route }) => {
       return;
     }
 
-    // 🥤 Bardak ikonları
     const icons = Array.from({ length: Math.min(count, 10) }, () => '🥤');
     setGlassIcons(icons);
 
-    // 🍹 Detoks tarifleri
-    let newRecipe = null;
-
-    if (count <= 2) {
-      newRecipe = {
-        name: 'Limonlu Canlandırıcı',
-        ingredients: ['1 bardak ılık su', 'Yarım limon suyu'],
-        instructions: 'Suyu hafif ısıtın. Limon suyunu ekleyip sabah aç karnına için.',
-      };
-    } else if (count <= 5) {
-      newRecipe = {
-        name: 'Naneli Ferahlık',
-        ingredients: ['1 litre su', '1 limon dilimleri', '5-6 nane yaprağı'],
-        instructions: 'Tüm malzemeleri sürahiye koyun. 1 saat buzdolabında bekletin.',
-      };
-    } else if (count <= 8) {
-      newRecipe = {
-        name: 'Çilekli Detoks',
-        ingredients: ['1 litre su', '6 çilek', 'Yarım limon', '2-3 nane yaprağı'],
-        instructions: 'Malzemeleri karıştırın. En az 2 saat buzdolabında bekletip tüketin.',
-      };
-    } else {
-      newRecipe = {
-        name: 'Salatalıklı Canlandırıcı',
-        ingredients: ['1 litre su', 'Yarım salatalık', '1 limon', 'Nane'],
-        instructions: 'Tüm malzemeleri ince dilimleyip sürahiye ekleyin. 3 saat soğutun.',
-      };
-    }
-
+    const newRecipe = getRandomRecipe();
     setRecipe(newRecipe);
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>
-        Gün içinde kaç bardak su içtiniz, {userData.fullName}?
-      </Text>
-
+      <Text style={styles.title}>Gün içinde kaç bardak su içtiniz?</Text>
       <TextInput
         style={styles.input}
         placeholder="Ör. 6"
@@ -81,17 +75,14 @@ const WaterReminderScreen: React.FC<Props> = ({ route }) => {
         value={glasses}
         onChangeText={setGlasses}
       />
-
       <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
-      {/* 🥤 Bardaklar */}
       <View style={styles.iconContainer}>
         {glassIcons.map((icon, index) => (
           <Text key={index} style={styles.icon}>{icon}</Text>
         ))}
       </View>
 
-      {/* 🧃 Detoks Kartı */}
       {recipe && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{recipe.name}</Text>
