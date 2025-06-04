@@ -1,3 +1,5 @@
+// src/screens/WaterReminderScreen.tsx
+
 import React, { useState } from 'react';
 import {
   View,
@@ -6,19 +8,10 @@ import {
   Button,
   StyleSheet,
   ScrollView,
+  Animated,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList, UserData } from '../../App';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
-
-interface DetoxRecipe {
-  name: string;
-  ingredients: string[];
-  instructions: string;
-}
-
-const detoxRecipes: DetoxRecipe[] = [
+const detoxRecipes = [
   {
     name: 'Limonlu Canlandırıcı',
     ingredients: ['1 bardak ılık su', 'Yarım limon suyu'],
@@ -32,67 +25,63 @@ const detoxRecipes: DetoxRecipe[] = [
   {
     name: 'Çilekli Detoks',
     ingredients: ['1 litre su', '6 çilek', 'Yarım limon', '2-3 nane yaprağı'],
-    instructions: 'Malzemeleri karıştırın. En az 2 saat buzdolabında bekletip tüketin.',
+    instructions: 'Malzemeleri karıştırın. 2 saat soğutup tüketin.',
   },
   {
-    name: 'Salatalıklı Canlandırıcı',
+    name: 'Salatalıklı Ferahlık',
     ingredients: ['1 litre su', 'Yarım salatalık', '1 limon', 'Nane'],
-    instructions: 'Tüm malzemeleri ince dilimleyip sürahiye ekleyin. 3 saat soğutun.',
+    instructions: 'Malzemeleri dilimleyip 3 saat soğutun.',
   },
   {
     name: 'Elmalı Tarçınlı Detoks',
-    ingredients: ['1 adet yeşil elma', '1 çubuk tarçın', '1 litre su'],
-    instructions: 'Elmayı dilimleyin, tarçınla birlikte suya ekleyin. 2 saat bekletin.',
+    ingredients: ['1 litre su', '1 yeşil elma dilimleri', '1 çubuk tarçın'],
+    instructions: 'Karıştırıp buzdolabında 2 saat bekletin.',
   },
   {
-    name: 'Zencefilli Limon Detoksu',
-    ingredients: ['Yarım limon', '1 litre su', 'Yarım zencefil'],
-    instructions: 'Suyu doldurun, rendelenmiş zencefili ve limonu ekleyin. Karıştırın.',
+    name: 'Ananaslı Detoks',
+    ingredients: ['1 litre su', '3 dilim ananas', '1 tatlı kaşığı zencefil'],
+    instructions: 'Malzemeleri ekleyip 2 saat bekletin.',
   },
-  {
-    name: 'Portakal ve Salatalık Detoksu',
-    ingredients: ['2 adet portakal', '1 adet salatalık', 'Buzlu su'],
-    instructions: 'Portakalları ve salatalığı dilimleyin, buzlu suya ekleyin.',
-  },
-  {
-    name: 'Karpuz ve Naneli Detoks',
-    ingredients: ['4 dilim karpuz', 'Taze nane yaprakları'],
-    instructions: 'Karpuzları blenderdan geçirin, nane yapraklarıyla karıştırın.',
-  },
-  {
-    name: 'Mangolu Zencefilli Detoks',
-    ingredients: ['1 fincan taze mango', 'Yarım zencefil'],
-    instructions: 'Mangoyu dilimleyin, rendelenmiş zencefille suya ekleyin.',
-  },
-  {
-    name: 'Tarçınlı Ballı Detoks',
-    ingredients: ['2 yemek kaşığı elma sirkesi', '1 su bardağı ılık su', '2 yemek kaşığı limon suyu', '1/2 çay kaşığı öğütülmüş zencefil', '1 çay kaşığı bal', '1 tutam acı biber'],
-    instructions: 'Tüm malzemeleri karıştırın. Ilık bir şekilde tüketin.',
-  },
-  // Daha fazla tarif ekleyebilirsiniz...
 ];
 
-const WaterReminderScreen: React.FC<Props> = ({ route }) => {
-  const userData: UserData = route.params.userData;
+const WaterReminderScreen = () => {
   const [glasses, setGlasses] = useState('');
   const [glassIcons, setGlassIcons] = useState<string[]>([]);
-  const [recipe, setRecipe] = useState<DetoxRecipe | null>(null);
+  const [recipe, setRecipe] = useState<null | typeof detoxRecipes[0]>(null);
+  const [message, setMessage] = useState('');
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   const handleSave = () => {
     const count = parseInt(glasses);
     if (isNaN(count) || count < 0) {
       setGlassIcons([]);
       setRecipe(null);
+      setMessage('');
       return;
     }
 
-    // 🥤 Bardak ikonları
     const icons = Array.from({ length: Math.min(count, 10) }, () => '🥤');
     setGlassIcons(icons);
 
-    // 🍹 Rastgele detoks tarifi seçimi
-    const randomIndex = Math.floor(Math.random() * detoxRecipes.length);
-    setRecipe(detoxRecipes[randomIndex]);
+    // Random detox
+    const randomRecipe = detoxRecipes[Math.floor(Math.random() * detoxRecipes.length)];
+    setRecipe(randomRecipe);
+
+    // Hydration feedback
+    let reminder = '';
+    if (count < 4) reminder = `Bugün çok az su içtin. En az ${8 - count} bardak daha içmelisin.`;
+    else if (count < 8) reminder = `İyi gidiyorsun! Hedefe ulaşmak için ${8 - count} bardak daha iç!`;
+    else reminder = 'Harika! Günlük su ihtiyacını karşıladın.';
+
+    setMessage(reminder);
+
+    // Fade in message
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
   };
 
   return (
@@ -107,14 +96,12 @@ const WaterReminderScreen: React.FC<Props> = ({ route }) => {
       />
       <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
-      {/* 🥤 Bardaklar */}
       <View style={styles.iconContainer}>
         {glassIcons.map((icon, index) => (
           <Text key={index} style={styles.icon}>{icon}</Text>
         ))}
       </View>
 
-      {/* 🧃 Detoks Kartı */}
       {recipe && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{recipe.name}</Text>
@@ -126,6 +113,10 @@ const WaterReminderScreen: React.FC<Props> = ({ route }) => {
           <Text style={styles.cardText}>{recipe.instructions}</Text>
         </View>
       )}
+
+      <Animated.View style={{ opacity: fadeAnim, marginTop: 16 }}>
+        <Text style={styles.feedbackText}>{message}</Text>
+      </Animated.View>
     </ScrollView>
   );
 };
@@ -196,5 +187,11 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 14,
     marginTop: 4,
+  },
+  feedbackText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2196F3',
+    textAlign: 'center',
   },
 });
