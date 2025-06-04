@@ -1,3 +1,5 @@
+// src/screens/MealReminderScreen.tsx
+
 import React, { useState } from 'react';
 import {
   View,
@@ -32,10 +34,9 @@ const calories: Record<string, number> = {
   elma: 52,
   muz: 89,
   'yeşil çay': 0,
-  tavuk: 165,
-  çorba: 80,
-  mısır: 86,
-  gevrek: 120,
+  sucuk: 120,
+  kahve: 5,
+  'kuru üzüm': 85,
 };
 
 const getTimeEmoji = (time: string): string => {
@@ -77,9 +78,7 @@ const MealReminderScreen: React.FC<Props> = ({ route }) => {
         }
       });
       badFoods.forEach((bad) => {
-        if (desc.includes(bad)) {
-          hasBadFood = true;
-        }
+        if (desc.includes(bad)) hasBadFood = true;
       });
     });
 
