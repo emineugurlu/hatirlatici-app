@@ -20,7 +20,8 @@ interface MealEntry {
 }
 
 const badFoods = ['cips', 'kola', 'şeker', 'hamburger', 'fast food'];
-const calories = {
+
+const calories: Record<string, number> = {
   yumurta: 78,
   peynir: 90,
   ekmek: 70,
@@ -69,10 +70,14 @@ const MealReminderScreen: React.FC<Props> = ({ route }) => {
     entries.forEach((entry) => {
       const desc = entry.description.toLowerCase();
       Object.keys(calories).forEach((food) => {
-        if (desc.includes(food)) calorieSum += calories[food];
+        if (desc.includes(food)) {
+          calorieSum += calories[food];
+        }
       });
       badFoods.forEach((bad) => {
-        if (desc.includes(bad)) hasBadFood = true;
+        if (desc.includes(bad)) {
+          hasBadFood = true;
+        }
       });
     });
 
@@ -96,7 +101,7 @@ const MealReminderScreen: React.FC<Props> = ({ route }) => {
           <Text style={styles.cardHeader}>{getTimeEmoji(entry.time)}</Text>
           <TextInput
             style={styles.input}
-            placeholder="08.00"
+            placeholder="08:00"
             value={entry.time}
             onChangeText={(val) => handleChange(idx, 'time', val)}
           />
