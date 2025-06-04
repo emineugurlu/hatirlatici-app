@@ -1,5 +1,3 @@
-// src/screens/MealReminderScreen.tsx
-
 import React, { useState } from 'react';
 import {
   View,
@@ -34,6 +32,10 @@ const calories: Record<string, number> = {
   elma: 52,
   muz: 89,
   'yeşil çay': 0,
+  tavuk: 165,
+  çorba: 80,
+  mısır: 86,
+  gevrek: 120,
 };
 
 const getTimeEmoji = (time: string): string => {
