@@ -12,7 +12,13 @@ import { RootStackParamList, UserData } from '../../App';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'WaterReminder'>;
 
-const detoxRecipes = [
+interface DetoxRecipe {
+  name: string;
+  ingredients: string[];
+  instructions: string;
+}
+
+const detoxRecipes: DetoxRecipe[] = [
   {
     name: 'Limonlu Canlandırıcı',
     ingredients: ['1 bardak ılık su', 'Yarım limon suyu'],
@@ -33,22 +39,44 @@ const detoxRecipes = [
     ingredients: ['1 litre su', 'Yarım salatalık', '1 limon', 'Nane'],
     instructions: 'Tüm malzemeleri ince dilimleyip sürahiye ekleyin. 3 saat soğutun.',
   },
+  {
+    name: 'Elmalı Tarçınlı Detoks',
+    ingredients: ['1 adet yeşil elma', '1 çubuk tarçın', '1 litre su'],
+    instructions: 'Elmayı dilimleyin, tarçınla birlikte suya ekleyin. 2 saat bekletin.',
+  },
+  {
+    name: 'Zencefilli Limon Detoksu',
+    ingredients: ['Yarım limon', '1 litre su', 'Yarım zencefil'],
+    instructions: 'Suyu doldurun, rendelenmiş zencefili ve limonu ekleyin. Karıştırın.',
+  },
+  {
+    name: 'Portakal ve Salatalık Detoksu',
+    ingredients: ['2 adet portakal', '1 adet salatalık', 'Buzlu su'],
+    instructions: 'Portakalları ve salatalığı dilimleyin, buzlu suya ekleyin.',
+  },
+  {
+    name: 'Karpuz ve Naneli Detoks',
+    ingredients: ['4 dilim karpuz', 'Taze nane yaprakları'],
+    instructions: 'Karpuzları blenderdan geçirin, nane yapraklarıyla karıştırın.',
+  },
+  {
+    name: 'Mangolu Zencefilli Detoks',
+    ingredients: ['1 fincan taze mango', 'Yarım zencefil'],
+    instructions: 'Mangoyu dilimleyin, rendelenmiş zencefille suya ekleyin.',
+  },
+  {
+    name: 'Tarçınlı Ballı Detoks',
+    ingredients: ['2 yemek kaşığı elma sirkesi', '1 su bardağı ılık su', '2 yemek kaşığı limon suyu', '1/2 çay kaşığı öğütülmüş zencefil', '1 çay kaşığı bal', '1 tutam acı biber'],
+    instructions: 'Tüm malzemeleri karıştırın. Ilık bir şekilde tüketin.',
+  },
+  // Daha fazla tarif ekleyebilirsiniz...
 ];
 
 const WaterReminderScreen: React.FC<Props> = ({ route }) => {
-  const { userData } = route.params;
+  const userData: UserData = route.params.userData;
   const [glasses, setGlasses] = useState('');
   const [glassIcons, setGlassIcons] = useState<string[]>([]);
-  const [recipe, setRecipe] = useState<null | {
-    name: string;
-    ingredients: string[];
-    instructions: string;
-  }>(null);
-
-  const getRandomRecipe = () => {
-    const randomIndex = Math.floor(Math.random() * detoxRecipes.length);
-    return detoxRecipes[randomIndex];
-  };
+  const [recipe, setRecipe] = useState<DetoxRecipe | null>(null);
 
   const handleSave = () => {
     const count = parseInt(glasses);
@@ -58,11 +86,13 @@ const WaterReminderScreen: React.FC<Props> = ({ route }) => {
       return;
     }
 
+    // 🥤 Bardak ikonları
     const icons = Array.from({ length: Math.min(count, 10) }, () => '🥤');
     setGlassIcons(icons);
 
-    const newRecipe = getRandomRecipe();
-    setRecipe(newRecipe);
+    // 🍹 Rastgele detoks tarifi seçimi
+    const randomIndex = Math.floor(Math.random() * detoxRecipes.length);
+    setRecipe(detoxRecipes[randomIndex]);
   };
 
   return (
@@ -77,12 +107,14 @@ const WaterReminderScreen: React.FC<Props> = ({ route }) => {
       />
       <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
+      {/* 🥤 Bardaklar */}
       <View style={styles.iconContainer}>
         {glassIcons.map((icon, index) => (
           <Text key={index} style={styles.icon}>{icon}</Text>
         ))}
       </View>
 
+      {/* 🧃 Detoks Kartı */}
       {recipe && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{recipe.name}</Text>
