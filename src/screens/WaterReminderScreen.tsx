@@ -1,4 +1,6 @@
-import React, { useState, useRef } from 'react';
+// src/screens/WaterReminderScreen.tsx
+
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,81 +11,75 @@ import {
   Animated,
 } from 'react-native';
 
-const WaterReminderScreen: React.FC = () => {
-  const [glasses, setGlasses] = useState('');
-  const [glassIcons, setGlassIcons] = useState<string[]>([]);
-  const [recipe, setRecipe] = useState<null | {
-    name: string;
-    ingredients: string[];
-    instructions: string;
-    emoji?: string;
-  }>(null);
-  const [feedback, setFeedback] = useState('');
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+const detoxRecipes = [
+  {
+    name: 'Limonlu Canlandırıcı 🍋',
+    ingredients: ['1 bardak ılık su', 'Yarım limon suyu'],
+    instructions: 'Suyu hafif ısıtın. Limon suyunu ekleyip sabah aç karnına için.',
+    color: '#D0F0C0',
+  },
+  {
+    name: 'Çilekli Detoks 🍓',
+    ingredients: ['1 litre su', '6 çilek', 'Yarım limon', '2-3 nane yaprağı'],
+    instructions: 'Malzemeleri karıştırın. En az 2 saat buzdolabında bekletip tüketin.',
+    color: '#FFEBEE',
+  },
+  {
+    name: 'Salatalıklı Ferahlık 🥒',
+    ingredients: ['1 litre su', 'Yarım salatalık', '1 limon', 'Nane'],
+    instructions: 'Malzemeleri ince doğrayın, sürahiye koyun. 3 saat soğutun.',
+    color: '#E0F2F1',
+  },
+  {
+    name: 'Ananaslı Arındırıcı 🍍',
+    ingredients: ['1 litre su', '3 dilim ananas', '1 limon', 'Birkaç nane yaprağı'],
+    instructions: 'Tüm malzemeleri karıştırın. Buzdolabında 2 saat bekletin.',
+    color: '#FFF3E0',
+  },
+  {
+    name: 'Yeşil Güç 💪',
+    ingredients: ['1 litre su', 'Yarım yeşil elma', 'Bir tutam maydanoz', 'Yarım salatalık'],
+    instructions: 'Malzemeleri karıştırın, 1-2 saat buzdolabında bekletin.',
+    color: '#D0F8CE',
+  },
+  {
+    name: 'Portakallı C Vitamini Bombası 🍊',
+    ingredients: ['1 litre su', '1 portakal dilimlenmiş', '1 limon', 'Taze zencefil dilimleri'],
+    instructions: 'Malzemeleri ekleyin ve 2 saat buzdolabında bekletin.',
+    color: '#FFF8E1',
+  },
+];
 
-  const allRecipes = [
-    {
-      name: 'Limonlu Canlandırıcı',
-      emoji: '🍋',
-      ingredients: ['1 bardak ılık su', 'Yarım limon suyu'],
-      instructions: 'Suyu hafif ısıtın. Limon suyunu ekleyip sabah aç karnına için.',
-    },
-    {
-      name: 'Naneli Ferahlık',
-      emoji: '🌿',
-      ingredients: ['1 litre su', '1 limon dilimleri', '5-6 nane yaprağı'],
-      instructions: 'Tüm malzemeleri sürahiye koyun. 1 saat buzdolabında bekletin.',
-    },
-    {
-      name: 'Çilekli Detoks',
-      emoji: '🍓',
-      ingredients: ['1 litre su', '6 çilek', 'Yarım limon', '2-3 nane yaprağı'],
-      instructions: 'Malzemeleri karıştırın. En az 2 saat buzdolabında bekletip tüketin.',
-    },
-    {
-      name: 'Salatalıklı Ferahlık',
-      emoji: '🥒',
-      ingredients: ['1 litre su', 'Yarım salatalık', '1 limon', 'Nane'],
-      instructions: 'Tüm malzemeleri ince dilimleyip sürahiye ekleyin. 3 saat soğutun.',
-    },
-    {
-      name: 'Tarçınlı Elmalı Detoks',
-      emoji: '🍎',
-      ingredients: ['1 litre su', 'Yarım elma', '1 çubuk tarçın'],
-      instructions: 'Malzemeleri sürahiye ekleyip 2 saat bekletin.',
-    },
-    {
-      name: 'Zencefilli Limonata',
-      emoji: '🫚',
-      ingredients: ['1 litre su', '1 dilim zencefil', 'Yarım limon'],
-      instructions: 'Zencefil ve limonu suda bekletin, buzla servis yapın.',
-    },
-  ];
+const WaterReminderScreen = () => {
+  const [glasses, setGlasses] = useState('');
+  const [icons, setIcons] = useState<string[]>([]);
+  const [recipe, setRecipe] = useState<any>(null);
+  const [message, setMessage] = useState('');
+  const [fadeAnim] = useState(new Animated.Value(0));
+
+  const getFeedbackMessage = (count: number) => {
+    if (count < 4) return '⚠️ Daha fazla su içmelisin!';
+    if (count < 8) return '😊 İyi gidiyorsun! Biraz daha su içersen harika olacak!';
+    if (count < 15) return '🎉 Harika! Su hedefini başarıyla tamamladın.';
+    return '🚨 Çok fazla su tüketimi zararlı olabilir!';
+  };
 
   const handleSave = () => {
     const count = parseInt(glasses);
     if (isNaN(count) || count < 0) {
-      setGlassIcons([]);
+      setIcons([]);
       setRecipe(null);
-      setFeedback('');
+      setMessage('');
       return;
     }
 
-    const icons = Array.from({ length: Math.min(count, 10) }, () => '🥤');
-    setGlassIcons(icons);
+    setIcons(Array.from({ length: Math.min(count, 15) }, () => '🥤'));
 
-    const randomRecipe = allRecipes[Math.floor(Math.random() * allRecipes.length)];
-    setRecipe(randomRecipe);
+    const randomIndex = Math.floor(Math.random() * detoxRecipes.length);
+    setRecipe(detoxRecipes[randomIndex]);
 
-    let message = '';
-    if (count < 4) {
-      message = `💧 Bugün az su içtiniz. En az ${8 - count} bardak daha için!`;
-    } else if (count >= 4 && count < 8) {
-      message = `🚰 Fena değil! Birkaç bardak daha içersen harika olur!`;
-    } else {
-      message = `🎉 Harika! Günlük su ihtiyacınızı karşıladınız!`;
-    }
-    setFeedback(message);
+    const newMsg = getFeedbackMessage(count);
+    setMessage(newMsg);
 
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
@@ -98,36 +94,34 @@ const WaterReminderScreen: React.FC = () => {
       <Text style={styles.title}>Gün içinde kaç bardak su içtiniz?</Text>
       <TextInput
         style={styles.input}
-        placeholder="Ör. 6"
+        placeholder="Örn. 6"
         keyboardType="numeric"
         value={glasses}
         onChangeText={setGlasses}
       />
-      <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
+      <Button title="KAYDET" onPress={handleSave} color="#4CAF50" />
 
       <View style={styles.iconContainer}>
-        {glassIcons.map((icon, index) => (
-          <Text key={index} style={styles.icon}>{icon}</Text>
+        {icons.map((icon, i) => (
+          <Text key={i} style={styles.icon}>{icon}</Text>
         ))}
       </View>
 
-      {feedback !== '' && (
-        <Animated.View style={[styles.feedbackContainer, { opacity: fadeAnim }]}>
-          <Text style={styles.feedbackText}>{feedback}</Text>
+      {message && (
+        <Animated.View style={[styles.messageContainer, { opacity: fadeAnim }]}>
+          <Text style={styles.feedbackText}>{message}</Text>
         </Animated.View>
       )}
 
       {recipe && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
-            {recipe.name} {recipe.emoji}
-          </Text>
-          <Text style={styles.cardSubtitle}>Malzemeler:</Text>
-          {recipe.ingredients.map((item, idx) => (
-            <Text key={idx} style={styles.cardItem}>• {item}</Text>
+        <View style={[styles.card, { backgroundColor: recipe.color }]}>
+          <Text style={styles.cardTitle}>{recipe.name}</Text>
+          <Text style={styles.subtitle}>Malzemeler:</Text>
+          {recipe.ingredients.map((item: string, i: number) => (
+            <Text key={i} style={styles.item}>• {item}</Text>
           ))}
-          <Text style={styles.cardSubtitle}>Yapılışı:</Text>
-          <Text style={styles.cardText}>{recipe.instructions}</Text>
+          <Text style={styles.subtitle}>Yapılışı:</Text>
+          <Text style={styles.instructions}>{recipe.instructions}</Text>
         </View>
       )}
     </ScrollView>
@@ -138,25 +132,26 @@ export default WaterReminderScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9F9F9',
+    flexGrow: 1,
     alignItems: 'center',
   },
   title: {
     fontSize: 18,
-    marginBottom: 12,
     textAlign: 'center',
+    marginBottom: 10,
+    color: '#333',
   },
   input: {
     width: '100%',
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#CCC',
     borderRadius: 8,
     padding: 10,
+    marginBottom: 12,
+    backgroundColor: '#FFF',
     fontSize: 16,
-    backgroundColor: '#fff',
-    marginBottom: 10,
   },
   iconContainer: {
     flexDirection: 'row',
@@ -168,49 +163,40 @@ const styles = StyleSheet.create({
     fontSize: 24,
     margin: 4,
   },
-  feedbackContainer: {
+  messageContainer: {
     marginVertical: 10,
+    padding: 10,
     backgroundColor: '#E8F5E9',
     borderRadius: 8,
-    padding: 12,
-    width: '100%',
   },
   feedbackText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#388E3C',
+    color: '#2E7D32',
     textAlign: 'center',
   },
   card: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
     width: '100%',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#2E7D32',
     marginBottom: 8,
   },
-  cardSubtitle: {
+  subtitle: {
     fontSize: 16,
     fontWeight: '600',
     marginTop: 10,
-    marginBottom: 4,
   },
-  cardItem: {
+  item: {
     fontSize: 14,
     marginLeft: 8,
     marginBottom: 2,
   },
-  cardText: {
+  instructions: {
     fontSize: 14,
     marginTop: 4,
   },
