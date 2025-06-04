@@ -12,148 +12,112 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
 
-interface MealEntry {
-  time: string;       // Örneğin '08:00'
-  description: string;// Örneğin 'Yumurta, peynir, ekmek'
-}
-
-interface MealSuggestion {
-  title: string;
-  items: string[];
-  suitableFor: {
-    minAge: number;
-    maxAge: number;
-    professions: string[];
-  };
-}
-
-const mealSuggestions: MealSuggestion[] = [
-  {
-    title: 'Genç Yazılımcı Dengesi',
-    items: [
-      'Sabah: Yulaf ezmesi + muz',
-      'Ara Öğün: 5–6 adet badem',
-      'Öğle: Izgara tavuk + bol yeşillik',
-      'Ara Öğün: Yoğurt + 1 çay kaşığı chia tohumu',
-      'Akşam: Fırında somon + kuşkonmaz',
-    ],
-    suitableFor: {
-      minAge: 18,
-      maxAge: 30,
-      professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Öğrenci'],
-    },
-  },
-  {
-    title: 'Orta Yaş Ofis Çalışanı',
-    items: [
-      'Sabah: Tam buğday ekmek + avokado + haşlanmış yumurta',
-      'Ara Öğün: 1 elma',
-      'Öğle: Hindi göğsü + kahverengi pirinç + brokoli',
-      'Ara Öğün: Havuç + humus',
-      'Akşam: Sebzeli kinoa salatası + zeytinyağı',
-    ],
-    suitableFor: {
-      minAge: 31,
-      maxAge: 50,
-      professions: ['Bilgisayar Mühendisi', 'Mühendis', 'Ofis Çalışanı'],
-    },
-  },
-  {
-    title: 'Dengeli 30+ Dönemi',
-    items: [
-      'Sabah: Karışık meyve tabağı + yulaf sütü',
-      'Ara Öğün: 1 avuç fındık',
-      'Öğle: Mercimek çorbası + tam buğday ekmek',
-      'Ara Öğün: Kefir + 1 tatlı kaşığı keten tohumu',
-      'Akşam: Fırınlanmış sebzeler + ızgara hindi',
-    ],
-    suitableFor: {
-      minAge: 30,
-      maxAge: 60,
-      professions: ['Bilgisayar Mühendisi', 'Proje Yöneticisi', 'Öğretmen'],
-    },
-  },
-];
-
 type Props = NativeStackScreenProps<RootStackParamList, 'MealReminder'>;
+
+interface MealEntry {
+  time: string;
+  description: string;
+}
+
+const badFoods = ['cips', 'kola', 'şeker', 'hamburger', 'fast food'];
+const calories = {
+  yumurta: 78,
+  peynir: 90,
+  ekmek: 70,
+  domates: 10,
+  salatalık: 5,
+  zeytin: 15,
+  çay: 0,
+  cips: 150,
+  kola: 210,
+  elma: 52,
+  muz: 89,
+  'yeşil çay': 0,
+};
+
+const getTimeEmoji = (time: string): string => {
+  const hour = parseInt(time.split(':')[0]);
+  if (hour >= 5 && hour < 11) return '🌅 Sabah';
+  if (hour >= 11 && hour < 16) return '☀️ Öğle';
+  if (hour >= 16 && hour < 22) return '🌙 Akşam';
+  return '🌃 Gece';
+};
 
 const MealReminderScreen: React.FC<Props> = ({ route }) => {
   const userData: UserData = route.params.userData;
   const [entries, setEntries] = useState<MealEntry[]>([
-    { time: '', description: '' },
+    { time: '08:00', description: '' },
   ]);
-
-  // Kullanıcının yaş ve mesleğine uygun öneriyi döner
-  const getMealSuggestionForUser = (
-    suggestions: MealSuggestion[],
-    user: UserData
-  ) => {
-    return suggestions.find((s) => {
-      return (
-        user.age >= s.suitableFor.minAge &&
-        user.age <= s.suitableFor.maxAge &&
-        s.suitableFor.professions.includes(user.job)
-      );
-    });
-  };
+  const [totalCalories, setTotalCalories] = useState<number>(0);
+  const [warning, setWarning] = useState('');
+  const [advice, setAdvice] = useState('');
 
   const handleChange = (index: number, field: keyof MealEntry, value: string) => {
-    const copy = [...entries];
-    copy[index] = { ...copy[index], [field]: value };
-    setEntries(copy);
+    const updated = [...entries];
+    updated[index] = { ...updated[index], [field]: value };
+    setEntries(updated);
   };
 
   const handleAddEntry = () => {
-    setEntries((prev) => [...prev, { time: '', description: '' }]);
+    setEntries([...entries, { time: '08:00', description: '' }]);
   };
 
   const handleSave = () => {
-    console.log('Bugünkü öğünler:', entries);
-  };
+    let calorieSum = 0;
+    let hasBadFood = false;
 
-  const userSuggestion = getMealSuggestionForUser(mealSuggestions, userData);
+    entries.forEach((entry) => {
+      const desc = entry.description.toLowerCase();
+      Object.keys(calories).forEach((food) => {
+        if (desc.includes(food)) calorieSum += calories[food];
+      });
+      badFoods.forEach((bad) => {
+        if (desc.includes(bad)) hasBadFood = true;
+      });
+    });
+
+    setTotalCalories(calorieSum);
+    setAdvice(
+      calorieSum < 600
+        ? '🍽️ Biraz daha beslenmelisin!'
+        : calorieSum < 1500
+        ? '✅ Dengeli bir gün geçiriyorsun.'
+        : '⚠️ Bugün fazla kalori almış olabilirsin!'
+    );
+    setWarning(hasBadFood ? '🚫 Zararlı yiyecekler tespit edildi.' : '');
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Bugün Yedikleriniz</Text>
 
-      {entries.map((item, idx) => (
-        <View key={idx} style={styles.entryRow}>
+      {entries.map((entry, idx) => (
+        <View key={idx} style={styles.card}>
+          <Text style={styles.cardHeader}>{getTimeEmoji(entry.time)}</Text>
           <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Zaman (08:00)"
-            placeholderTextColor="#888888"
-            value={item.time}
+            style={styles.input}
+            placeholder="08.00"
+            value={entry.time}
             onChangeText={(val) => handleChange(idx, 'time', val)}
           />
           <TextInput
-            style={[styles.input, { flex: 2, marginLeft: 8 }]}
-            placeholder="Öğün Açıklaması"
-            placeholderTextColor="#888888"
-            value={item.description}
+            style={styles.input}
+            placeholder="Öğün açıklaması"
+            value={entry.description}
             onChangeText={(val) => handleChange(idx, 'description', val)}
           />
         </View>
       ))}
 
-      <Button title="+ Yeni Öğün Ekle" onPress={handleAddEntry} color="#E91E63" />
-      <View style={{ height: 12 }} />
-      <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
+      <Button title="+ YENİ ÖĞÜN EKLE" onPress={handleAddEntry} color="#E91E63" />
+      <View style={{ height: 10 }} />
+      <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
-      {userSuggestion ? (
-        <View style={styles.suggestionContainer}>
-          <Text style={styles.suggestionTitle}>Yarınki Menü Önerisi:</Text>
-          {userSuggestion.items.map((menuItem, i) => (
-            <Text key={i} style={styles.menuItem}>
-              • {menuItem}
-            </Text>
-          ))}
-        </View>
-      ) : (
-        <View style={styles.suggestionContainer}>
-          <Text style={styles.suggestionTitle}>
-            Size uygun bir menü önerisi bulunamadı.
-          </Text>
+      {totalCalories > 0 && (
+        <View style={styles.feedbackBox}>
+          <Text style={styles.calorieText}>Toplam Kalori: {totalCalories} kcal</Text>
+          <Text style={styles.advice}>{advice}</Text>
+          {warning !== '' && <Text style={styles.warning}>{warning}</Text>}
         </View>
       )}
     </ScrollView>
@@ -169,38 +133,52 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#333333',
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 16,
   },
-  entryRow: {
-    flexDirection: 'row',
+  card: {
+    borderWidth: 1,
+    borderColor: '#EEE',
+    borderRadius: 10,
+    padding: 12,
     marginBottom: 12,
+    backgroundColor: '#FAFAFA',
+  },
+  cardHeader: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#DDDDDD',
+    borderColor: '#DDD',
     borderRadius: 8,
-    height: 50,
-    paddingHorizontal: 12,
-    fontSize: 14,
-    color: '#333333',
+    paddingHorizontal: 10,
+    height: 44,
+    marginTop: 4,
+    backgroundColor: '#FFF',
   },
-  suggestionContainer: {
-    marginTop: 24,
-    padding: 12,
+  feedbackBox: {
+    marginTop: 16,
+    padding: 14,
     backgroundColor: '#FFF3E0',
     borderRadius: 8,
+    alignItems: 'center',
   },
-  suggestionTitle: {
-    fontSize: 18,
+  calorieText: {
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
-    color: '#E91E63',
+    marginBottom: 6,
   },
-  menuItem: {
+  advice: {
+    fontSize: 15,
+    color: '#333',
+  },
+  warning: {
     fontSize: 14,
-    color: '#555555',
-    marginBottom: 4,
+    marginTop: 6,
+    color: '#C62828',
+    fontWeight: 'bold',
   },
 });
