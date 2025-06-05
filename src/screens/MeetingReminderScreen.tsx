@@ -16,91 +16,74 @@ import axios from 'axios';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'>;
 
-const clothingSuggestions = [
-  {
-    minTemp: -10,
-    maxTemp: 5,
-    genders: ['Erkek', 'Kadın'],
-    recommendation:
-      '🧥 Hava çok soğuk. Kalın kaban, kazak ve bot giyin. Atkı unutmayın.',
-  },
-  {
-    minTemp: 6,
-    maxTemp: 18,
-    genders: ['Erkek', 'Kadın'],
-    recommendation:
-      '🧣 Serin bir hava. İnce kazak, ceket ve pantolon önerilir.',
-  },
-  {
-    minTemp: 19,
-    maxTemp: 30,
-    genders: ['Erkek', 'Kadın'],
-    recommendation:
-      '👕 Ilık hava. Tişört ve ince pantolon yeterli olabilir.',
-  },
-  {
-    minTemp: 31,
-    maxTemp: 50,
-    genders: ['Erkek', 'Kadın'],
-    recommendation:
-      '🩳 Çok sıcak! Kısa kollu kıyafetler ve bol sıvı tüketimi önemli.',
-  },
-];
+interface WeatherInfo {
+  temperature: number;
+  description: string;
+}
 
 const MeetingReminderScreen: React.FC<Props> = ({ route }) => {
   const userData: UserData = route.params.userData;
   const [reminderDate, setReminderDate] = useState('');
   const [reminderNote, setReminderNote] = useState('');
-  const [temperature, setTemperature] = useState<number | null>(null);
-  const [weatherDesc, setWeatherDesc] = useState('');
-  const [advice, setAdvice] = useState('');
+  const [weatherInfo, setWeatherInfo] = useState<WeatherInfo | null>(null);
+  const [recommendation, setRecommendation] = useState('');
 
-  useEffect(() => {
-    fetchWeather(userData.city);
-  }, [userData.city]);
+  const API_KEY = 'ac782525f21daebd1fe4320a895bc087';
 
-  const fetchWeather = async (city: string) => {
-    try {
-      const apiKey = 'YOUR_API_KEY'; // 🔁 Kendi OpenWeatherMap API anahtarınızı buraya ekleyin
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=tr&appid=${apiKey}`
-      );
-
-      const temp = response.data.main.temp;
-      const desc = response.data.weather[0].description;
-
-      setTemperature(temp);
-      setWeatherDesc(desc);
-      suggestClothing(temp, userData.gender);
-    } catch (error) {
-      setWeatherDesc('');
-      setAdvice('⚠️ Hava verisi alınamadı. Genel tercihlere bakınız.');
+  const getClothingRecommendation = (
+    temperature: number,
+    gender: string
+  ): string => {
+    if (temperature < 10) {
+      return gender === 'Kadın'
+        ? '🧥 Kalın mont, bot ve atkı önerilir.'
+        : '🧥 Kalın kaban, kazak ve bot giyebilirsin.';
+    } else if (temperature < 20) {
+      return gender === 'Kadın'
+        ? '🧶 İnce kazak, ceket ve uzun pantolon uygun olur.'
+        : '🧥 Hafif mont ve pantolon tercih edebilirsin.';
+    } else if (temperature < 30) {
+      return gender === 'Kadın'
+        ? '👗 Hafif elbise veya tişört + pantolon kombinasyonu harika olur.'
+        : '👕 Tişört ve rahat bir pantolon iyi gider.';
+    } else {
+      return gender === 'Kadın'
+        ? '🩱 İnce kıyafetler ve açık renkler tercih edin.'
+        : '👕 Kısa kollu tişört ve şort tam sana göre.';
     }
   };
 
-  const suggestClothing = (temp: number, gender: string) => {
-    const match = clothingSuggestions.find(
-      (item) =>
-        temp >= item.minTemp &&
-        temp <= item.maxTemp &&
-        item.genders.includes(gender)
-    );
-
-    setAdvice(match ? match.recommendation : 'Giyim önerisi bulunamadı.');
+  const fetchWeather = async () => {
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${userData.city}&appid=${API_KEY}&units=metric&lang=tr`
+      );
+      const temp = response.data.main.temp;
+      const desc = response.data.weather[0].description;
+      setWeatherInfo({ temperature: temp, description: desc });
+      const clothing = getClothingRecommendation(temp, userData.gender);
+      setRecommendation(clothing);
+    } catch (error) {
+      setWeatherInfo(null);
+      setRecommendation('⚠️ Hava verisi alınamadı. Genel tercihlere bakınız.');
+    }
   };
+
+  useEffect(() => {
+    fetchWeather();
+  }, []);
 
   const handleSave = () => {
     if (!reminderDate.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen tarih girin.');
+      Alert.alert('Eksik Bilgi', 'Lütfen hatırlatma tarihini girin.');
       return;
     }
     if (!reminderNote.trim()) {
       Alert.alert('Eksik Bilgi', 'Lütfen hatırlatma notu girin.');
       return;
     }
-
-    console.log('Hatırlatıcı:', reminderDate, reminderNote);
-    Alert.alert('Başarılı', 'Hatırlatıcı kaydedildi.');
+    console.log('Hatırlatma Tarihi:', reminderDate);
+    console.log('Hatırlatma Notu:', reminderNote);
   };
 
   return (
@@ -109,28 +92,28 @@ const MeetingReminderScreen: React.FC<Props> = ({ route }) => {
 
       <TextInput
         style={styles.input}
-        placeholder="Tarih (06.06.2025)"
+        placeholder="05.06.2025"
+        placeholderTextColor="#888"
         value={reminderDate}
         onChangeText={setReminderDate}
       />
-      <View style={{ height: 12 }} />
       <TextInput
         style={styles.input}
-        placeholder="Hatırlatma Konusu"
+        placeholder="Toplantı, İş, Randevu..."
+        placeholderTextColor="#888"
         value={reminderNote}
         onChangeText={setReminderNote}
       />
-      <View style={{ height: 12 }} />
-      <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
+
+      <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
       <View style={styles.suggestionContainer}>
         <Text style={styles.suggestionTitle}>👕 Giyim Önerisi</Text>
-        {temperature !== null && (
-          <Text style={styles.suggestionText}>
-            {userData.city} - {temperature}°C - {weatherDesc}
-          </Text>
-        )}
-        <Text style={styles.suggestionText}>{advice}</Text>
+        <Text style={styles.suggestionText}>
+          {weatherInfo
+            ? `${userData.city} için hava: ${weatherInfo.description}, ${weatherInfo.temperature}°C\n${recommendation}`
+            : recommendation}
+        </Text>
       </View>
     </ScrollView>
   );
@@ -151,12 +134,13 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#DDDDDD',
+    borderColor: '#CCCCCC',
     borderRadius: 8,
     height: 50,
     paddingHorizontal: 12,
-    fontSize: 14,
-    color: '#333333',
+    fontSize: 15,
+    marginBottom: 10,
+    backgroundColor: '#FAFAFA',
   },
   suggestionContainer: {
     marginTop: 24,
@@ -167,12 +151,11 @@ const styles = StyleSheet.create({
   suggestionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 8,
     color: '#1976D2',
+    marginBottom: 6,
   },
   suggestionText: {
-    fontSize: 14,
-    color: '#333333',
-    marginBottom: 4,
+    fontSize: 15,
+    color: '#333',
   },
 });
