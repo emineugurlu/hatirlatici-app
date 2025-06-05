@@ -1,124 +1,161 @@
-// src/screens/ReminderSelectionScreen.tsx
+// src/screens/MeetingReminderScreen.tsx
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet
+  TextInput,
+  Button,
+  StyleSheet,
+  ScrollView,
+  Alert,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
 import { RootStackParamList, UserData } from '../../App';
+import axios from 'axios';
 
-// 1) Bu ekrana gelen props tipi:
-type Props = NativeStackScreenProps<RootStackParamList, 'ReminderSelection'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'>;
 
-// 2) Sadece “param bekleyen ekran adları”nı içeren bir tip oluşturduk.
-//    Böylece “Onboarding” burada **kullanılamayacak**, çünkü Onboarding: undefined
-type ParamScreens =
-  | 'ReminderSelection'
-  | 'WaterReminder'
-  | 'MealReminder'
-  | 'MeetingReminder'
-  | 'OtherReminder';
+interface WeatherInfo {
+  temperature: number;
+  description: string;
+}
 
-const ReminderSelectionScreen: React.FC<Props> = ({ navigation, route }) => {
-  // 3) Kesin: route.params.userData mevcuttur.
+const MeetingReminderScreen: React.FC<Props> = ({ route }) => {
   const userData: UserData = route.params.userData;
+  const [reminderDate, setReminderDate] = useState('');
+  const [reminderNote, setReminderNote] = useState('');
+  const [weatherInfo, setWeatherInfo] = useState<WeatherInfo | null>(null);
+  const [recommendation, setRecommendation] = useState('');
 
-  // 4) Param bekleyen ekran adlarını tuşa basınca kullanıyoruz:
-  const handleSelection = (screenName: ParamScreens) => {
-    // navigation.navigate<ParamScreens> ile TS’e “param bekleyen ekranlardan birini seçeceğim”
-    navigation.navigate<ParamScreens>(screenName, { userData });
+  const API_KEY = 'ac782525f21daebd1fe4320a895bc087';
+
+  const getClothingRecommendation = (
+    temperature: number,
+    gender: string
+  ): string => {
+    if (temperature < 10) {
+      return gender === 'Kadın'
+        ? '🧥 Kalın mont, bot ve atkı önerilir.'
+        : '🧥 Kalın kaban, kazak ve bot giyebilirsin.';
+    } else if (temperature < 20) {
+      return gender === 'Kadın'
+        ? '🧶 İnce kazak, ceket ve uzun pantolon uygun olur.'
+        : '🧥 Hafif mont ve pantolon tercih edebilirsin.';
+    } else if (temperature < 30) {
+      return gender === 'Kadın'
+        ? '👗 Hafif elbise veya tişört + pantolon kombinasyonu harika olur.'
+        : '👕 Tişört ve rahat bir pantolon iyi gider.';
+    } else {
+      return gender === 'Kadın'
+        ? '🩱 İnce kıyafetler ve açık renkler tercih edin.'
+        : '👕 Kısa kollu tişört ve şort tam sana göre.';
+    }
+  };
+
+  const fetchWeather = async () => {
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${userData.city}&appid=${API_KEY}&units=metric&lang=tr`
+      );
+      const temp = response.data.main.temp;
+      const desc = response.data.weather[0].description;
+      setWeatherInfo({ temperature: temp, description: desc });
+      const clothing = getClothingRecommendation(temp, userData.gender);
+      setRecommendation(clothing);
+    } catch (error) {
+      setWeatherInfo(null);
+      setRecommendation('⚠️ Hava verisi alınamadı. Genel tercihlere bakınız.');
+    }
+  };
+
+  useEffect(() => {
+    fetchWeather();
+  }, []);
+
+  const handleSave = () => {
+    if (!reminderDate.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen hatırlatma tarihini girin.');
+      return;
+    }
+    if (!reminderNote.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen hatırlatma notu girin.');
+      return;
+    }
+    console.log('Hatırlatma Tarihi:', reminderDate);
+    console.log('Hatırlatma Notu:', reminderNote);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Merhaba, {userData.fullName}!</Text>
-      <Text style={styles.subtitle}>Bugün neyi hatırlatmak istersiniz?</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Hatırlatıcı Detayları</Text>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => handleSelection('WaterReminder')}
-      >
-        <Icon name="cup-water" size={20} color="#FFF" style={{ marginRight: 8 }} />
-        <Text style={styles.buttonText}>Su İçmeyi</Text>
-      </TouchableOpacity>
+      <TextInput
+        style={styles.input}
+        placeholder="05.06.2025"
+        placeholderTextColor="#888"
+        value={reminderDate}
+        onChangeText={setReminderDate}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Toplantı, İş, Randevu..."
+        placeholderTextColor="#888"
+        value={reminderNote}
+        onChangeText={setReminderNote}
+      />
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => handleSelection('MealReminder')}
-      >
-        <Icon
-          name="food-fork-drink"
-          size={20}
-          color="#FFF"
-          style={{ marginRight: 8 }}
-        />
-        <Text style={styles.buttonText}>Yemek Yemeyi</Text>
-      </TouchableOpacity>
+      <Button title="KAYDET" onPress={handleSave} color="#8BC34A" />
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => handleSelection('MeetingReminder')}
-      >
-        <Icon
-          name="calendar-check"
-          size={20}
-          color="#FFF"
-          style={{ marginRight: 8 }}
-        />
-        <Text style={styles.buttonText}>Hatırlatıcı</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => handleSelection('OtherReminder')}
-      >
-        <Icon name="plus-box" size={20} color="#FFF" style={{ marginRight: 8 }} />
-        <Text style={styles.buttonText}>Diğer</Text>
-      </TouchableOpacity>
-    </View>
+      <View style={styles.suggestionContainer}>
+        <Text style={styles.suggestionTitle}>👕 Giyim Önerisi</Text>
+        <Text style={styles.suggestionText}>
+          {weatherInfo
+            ? `${userData.city} için hava: ${weatherInfo.description}, ${weatherInfo.temperature}°C\n${recommendation}`
+            : recommendation}
+        </Text>
+      </View>
+    </ScrollView>
   );
 };
 
-export default ReminderSelectionScreen;
+export default MeetingReminderScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    padding: 16
+    padding: 16,
+    backgroundColor: '#FFFFFF',
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '600',
-    marginBottom: 8,
-    color: '#333333'
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#666666'
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#8BC34A',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
     marginBottom: 12,
-    width: '100%',
-    justifyContent: 'center'
+    color: '#333333',
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500'
-  }
+  input: {
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
+    borderRadius: 8,
+    height: 50,
+    paddingHorizontal: 12,
+    fontSize: 15,
+    marginBottom: 10,
+    backgroundColor: '#FAFAFA',
+  },
+  suggestionContainer: {
+    marginTop: 24,
+    backgroundColor: '#E1F5FE',
+    borderRadius: 8,
+    padding: 12,
+  },
+  suggestionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1976D2',
+    marginBottom: 6,
+  },
+  suggestionText: {
+    fontSize: 15,
+    color: '#333',
+  },
 });
