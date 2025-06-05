@@ -1,3 +1,5 @@
+// App.tsx
+
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,6 +12,7 @@ import MeetingReminderScreen from './src/screens/MeetingReminderScreen';
 import OtherReminderScreen from './src/screens/OtherReminderScreen';
 import DetoxListScreen from './src/screens/DetoxListScreen';
 
+// Kullanıcı bilgileri tipi
 export interface UserData {
   fullName: string;
   age: number;
@@ -18,6 +21,7 @@ export interface UserData {
   city: string;
 }
 
+// Navigation için parametre listesi
 export type RootStackParamList = {
   Onboarding: undefined;
   ReminderSelection: { userData: UserData };
