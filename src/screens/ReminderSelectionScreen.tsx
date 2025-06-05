@@ -70,7 +70,7 @@ const ReminderSelectionScreen: React.FC<Props> = ({ navigation, route }) => {
           color="#FFF"
           style={{ marginRight: 8 }}
         />
-        <Text style={styles.buttonText}>Toplantıyı</Text>
+        <Text style={styles.buttonText}>Hatırlatıcı</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
