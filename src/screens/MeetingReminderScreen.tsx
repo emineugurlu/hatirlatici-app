@@ -1,6 +1,6 @@
 // src/screens/MeetingReminderScreen.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,128 +12,125 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, UserData } from '../../App';
+import axios from 'axios';
 
-interface WeatherInfo {
-  temperature: number; 
-  description: string; 
-}
+type Props = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'>;
 
-const cityWeatherMap: Record<string, WeatherInfo> = {
-  'İstanbul': { temperature: 22, description: 'Güneşli' },
-  'Ankara':    { temperature: 18, description: 'Bulutlu' },
-  'İzmir':     { temperature: 25, description: 'Güneşli' },
-  'Bingöl':    { temperature: 12, description: 'Yağmurlu' },
-  // İstediğiniz kadar ekleyebilirsiniz...
-};
-
-interface ClothingSuggestion {
-  minTemp: number;
-  maxTemp: number;
-  professions: string[];
-  recommendation: string;
-}
-
-const clothingSuggestions: ClothingSuggestion[] = [
+const clothingSuggestions = [
   {
     minTemp: -10,
     maxTemp: 5,
-    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Mühendis'],
+    genders: ['Erkek', 'Kadın'],
     recommendation:
-      'Hava çok soğuk. Kalın kaban, kazak ve bot giyin. Toplantıda şık bir atkı tercih edebilirsiniz.',
+      '🧥 Hava çok soğuk. Kalın kaban, kazak ve bot giyin. Atkı unutmayın.',
   },
   {
     minTemp: 6,
     maxTemp: 18,
-    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Mühendis'],
+    genders: ['Erkek', 'Kadın'],
     recommendation:
-      'Serin bir hava var. İnce bir kazak veya hafif ceket, altına uzun pantolon önerilir.',
+      '🧣 Serin bir hava. İnce kazak, ceket ve pantolon önerilir.',
   },
   {
     minTemp: 19,
     maxTemp: 30,
-    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Mühendis'],
+    genders: ['Erkek', 'Kadın'],
     recommendation:
-      'Ilık bir gün. İnce gömlek veya polo yaka tişört, altına şık bir chino pantolon uygun olacaktır.',
+      '👕 Ilık hava. Tişört ve ince pantolon yeterli olabilir.',
   },
   {
     minTemp: 31,
     maxTemp: 50,
-    professions: ['Bilgisayar Mühendisi', 'Yazılımcı', 'Mühendis'],
+    genders: ['Erkek', 'Kadın'],
     recommendation:
-      'Çok sıcak bir hava var. Açık renkli kısa kollu gömlek ve ince kumaş pantolon (eğer işyeri izni varsa şort) tercih edebilirsiniz.',
+      '🩳 Çok sıcak! Kısa kollu kıyafetler ve bol sıvı tüketimi önemli.',
   },
 ];
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MeetingReminder'>;
-
 const MeetingReminderScreen: React.FC<Props> = ({ route }) => {
   const userData: UserData = route.params.userData;
-  const [meetingDate, setMeetingDate] = useState('');
-  const [meetingTopic, setMeetingTopic] = useState('');
+  const [reminderDate, setReminderDate] = useState('');
+  const [reminderNote, setReminderNote] = useState('');
+  const [temperature, setTemperature] = useState<number | null>(null);
+  const [weatherDesc, setWeatherDesc] = useState('');
+  const [advice, setAdvice] = useState('');
 
-  const getWeatherForCity = (cityName: string): WeatherInfo | null => {
-    return cityWeatherMap[cityName] || null;
+  useEffect(() => {
+    fetchWeather(userData.city);
+  }, [userData.city]);
+
+  const fetchWeather = async (city: string) => {
+    try {
+      const apiKey = 'YOUR_API_KEY'; // 🔁 Kendi OpenWeatherMap API anahtarınızı buraya ekleyin
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=tr&appid=${apiKey}`
+      );
+
+      const temp = response.data.main.temp;
+      const desc = response.data.weather[0].description;
+
+      setTemperature(temp);
+      setWeatherDesc(desc);
+      suggestClothing(temp, userData.gender);
+    } catch (error) {
+      setWeatherDesc('');
+      setAdvice('⚠️ Hava verisi alınamadı. Genel tercihlere bakınız.');
+    }
   };
 
-  const getClothingSuggestion = (
-    weather: WeatherInfo,
-    user: UserData
-  ): string => {
-    const temp = weather.temperature;
-    const found = clothingSuggestions.find(
+  const suggestClothing = (temp: number, gender: string) => {
+    const match = clothingSuggestions.find(
       (item) =>
         temp >= item.minTemp &&
         temp <= item.maxTemp &&
-        item.professions.includes(user.job)
+        item.genders.includes(gender)
     );
-    return found
-      ? found.recommendation
-      : 'Hava bilgisi tam değil. Lütfen günlük giyim tercihinize güvenin.';
+
+    setAdvice(match ? match.recommendation : 'Giyim önerisi bulunamadı.');
   };
 
   const handleSave = () => {
-    if (!meetingDate.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen toplantı tarih ve saatini girin.');
+    if (!reminderDate.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen tarih girin.');
       return;
     }
-    if (!meetingTopic.trim()) {
-      Alert.alert('Eksik Bilgi', 'Lütfen toplantı konusunu girin.');
+    if (!reminderNote.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen hatırlatma notu girin.');
       return;
     }
-    console.log('Toplantı Tarihi:', meetingDate);
-    console.log('Toplantı Konusu:', meetingTopic);
-  };
 
-  const weather = getWeatherForCity(userData.city);
-  const clothingAdvice = weather
-    ? getClothingSuggestion(weather, userData)
-    : 'Hava verisi bulunamadı. Genel giyim tercihlerinize bakın.';
+    console.log('Hatırlatıcı:', reminderDate, reminderNote);
+    Alert.alert('Başarılı', 'Hatırlatıcı kaydedildi.');
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Toplantı Detayları</Text>
+      <Text style={styles.title}>Hatırlatıcı Detayları</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Tarih ve Saat (DD/MM/YY 15:00)"
-        placeholderTextColor="#888888"
-        value={meetingDate}
-        onChangeText={setMeetingDate}
+        placeholder="Tarih (06.06.2025)"
+        value={reminderDate}
+        onChangeText={setReminderDate}
       />
       <View style={{ height: 12 }} />
       <TextInput
         style={styles.input}
-        placeholder="Toplantı Konusu"
-        placeholderTextColor="#888888"
-        value={meetingTopic}
-        onChangeText={setMeetingTopic}
+        placeholder="Hatırlatma Konusu"
+        value={reminderNote}
+        onChangeText={setReminderNote}
       />
       <View style={{ height: 12 }} />
       <Button title="Kaydet" onPress={handleSave} color="#8BC34A" />
 
       <View style={styles.suggestionContainer}>
-        <Text style={styles.suggestionTitle}>Giyim Önerisi</Text>
-        <Text style={styles.suggestionText}>{clothingAdvice}</Text>
+        <Text style={styles.suggestionTitle}>👕 Giyim Önerisi</Text>
+        {temperature !== null && (
+          <Text style={styles.suggestionText}>
+            {userData.city} - {temperature}°C - {weatherDesc}
+          </Text>
+        )}
+        <Text style={styles.suggestionText}>{advice}</Text>
       </View>
     </ScrollView>
   );
@@ -176,5 +173,6 @@ const styles = StyleSheet.create({
   suggestionText: {
     fontSize: 14,
     color: '#333333',
+    marginBottom: 4,
   },
 });
