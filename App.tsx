@@ -1,5 +1,3 @@
-// App.tsx
-
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,9 +8,9 @@ import WaterReminderScreen from './src/screens/WaterReminderScreen';
 import MealReminderScreen from './src/screens/MealReminderScreen';
 import MeetingReminderScreen from './src/screens/MeetingReminderScreen';
 import OtherReminderScreen from './src/screens/OtherReminderScreen';
-import DetoxListScreen from './src/screens/DetoxListScreen';
+import DetoxListScreen from './src/screens/DetoxListScreen'; // ✅ Eklendi
 
-// Kullanıcı bilgileri tipi
+// 1) Kullanıcı verileri tipi
 export interface UserData {
   fullName: string;
   age: number;
@@ -21,7 +19,7 @@ export interface UserData {
   city: string;
 }
 
-// Navigation için parametre listesi
+// 2) Navigation parametre listesi
 export type RootStackParamList = {
   Onboarding: undefined;
   ReminderSelection: { userData: UserData };
@@ -56,43 +54,43 @@ const App: React.FC = () => {
           <>
             <Stack.Screen
               name="ReminderSelection"
-              component={ReminderSelectionScreen}
-              initialParams={{ userData }}
               options={{ title: 'Hatırlatıcı Seçimi' }}
+              initialParams={{ userData }}
+              component={ReminderSelectionScreen}
             />
 
             <Stack.Screen
               name="WaterReminder"
-              component={WaterReminderScreen}
-              initialParams={{ userData }}
               options={{ title: 'Su Hatırlatıcı' }}
+              initialParams={{ userData }}
+              component={WaterReminderScreen}
             />
 
             <Stack.Screen
               name="MealReminder"
-              component={MealReminderScreen}
-              initialParams={{ userData }}
               options={{ title: 'Yemek Hatırlatıcı' }}
+              initialParams={{ userData }}
+              component={MealReminderScreen}
             />
 
             <Stack.Screen
               name="MeetingReminder"
-              component={MeetingReminderScreen}
+              options={{ title: 'Toplantı Hatırlatıcı' }}
               initialParams={{ userData }}
-              options={{ title: 'Hatırlatıcı' }} // Başlık güncellendi
+              component={MeetingReminderScreen}
             />
 
             <Stack.Screen
               name="OtherReminder"
-              component={OtherReminderScreen}
-              initialParams={{ userData }}
               options={{ title: 'Diğer Hatırlatıcı' }}
+              initialParams={{ userData }}
+              component={OtherReminderScreen}
             />
 
             <Stack.Screen
               name="DetoxList"
-              component={DetoxListScreen}
               options={{ title: 'Detoks Tarifleri' }}
+              component={DetoxListScreen}
             />
           </>
         )}
