@@ -51,10 +51,12 @@ A versatile reminder app built with React Native, using Freebase for data servic
 ## Installation
 
 1. Clone the repository:  
-   ```bash   https://github.com/emineugurlu/hatirlatici-app
-  cd hatirlatici-app
-  npm install
-  npm run android
+   ```bash
+   git clone https://github.com/emineugurlu/hatirlatici-app
+   cd hatirlatic-app
+   npm install
+   npm run android
+  
 
 
 ## License
