@@ -40,10 +40,15 @@ A versatile reminder app built with React Native, using Freebase for data servic
 ##Screenshot
 
 ![Ekran görüntüsü 2025-06-03 160023](https://github.com/user-attachments/assets/7f8c9dc7-a42a-4e2b-bbc6-6202644f62aa)
+
 ![Ekran görüntüsü 2025-06-07 182927](https://github.com/user-attachments/assets/b31a6a06-78cd-4035-8201-6d4b68d9e418)
+
 ![Ekran görüntüsü 2025-06-07 183009](https://github.com/user-attachments/assets/a154ad67-beae-4e8e-972a-7ed60651f323)
+
 ![Ekran görüntüsü 2025-06-07 183215](https://github.com/user-attachments/assets/27374d42-7bf6-4b34-b0c3-af29b1214692)
+
 ![Ekran görüntüsü 2025-06-07 183301](https://github.com/user-attachments/assets/2cff56d2-2592-44e0-aba1-f24a2d5752bf)
+
 ![image](https://github.com/user-attachments/assets/c997d344-fb3e-4652-86b2-12f7206a4418)
 
 
