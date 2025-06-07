@@ -9,7 +9,7 @@ A versatile reminder app built with React Native, using Freebase for data servic
 - 💧 **Water Reminder**  
   - Track how many glasses of water you drink per day.  
   - Visual feedback showing progress toward your goal.
-
+    
 - 🍽️ **Meal Reminder & Calorie Counter**  
   - Log your breakfast, lunch, dinner, and snacks.  
   - Calculates total calories and provides nutrition tips.  
