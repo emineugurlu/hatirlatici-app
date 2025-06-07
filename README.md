@@ -31,9 +31,10 @@ A versatile reminder app built with React Native, using Freebase for data servic
 ## Technologies
 
 - **React Native**  
-- **Freebase API** (for weather and recipe data)  
+- **OpenWeatherMap API** (for real-time weather data)  
+- **Firebase** (Authentication, Firestore for data persistence)  
 - **React Navigation** (screen transitions)  
-- **AsyncStorage** (local data persistence)  
+- **AsyncStorage** (local caching)  
 - **Formik & Yup** (form handling and validation)
 
 ---
